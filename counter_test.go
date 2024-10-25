@@ -98,7 +98,7 @@ func TestGetCounterFilename(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.counter.GetCounterFilename(tt.position, tt.suffix, tt.filenumber, tt.filenamesInUse)
 			if got != tt.expected {
-				t.Errorf("GetCounterFilename() = %v, want %v", got, tt.expected)
+				t.Errorf("GetCounterFilename() = '%v', want '%v'", got, tt.expected)
 			}
 		})
 	}

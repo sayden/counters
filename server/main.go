@@ -179,7 +179,7 @@ func generateCounter(byt []byte) (response, error) {
 		wc := base64.NewEncoder(base64.StdEncoding, buf)
 
 		// get a canvas with the rendered counter. The canvas can be written to a io.Writer
-		err := counter.EncodeCounter(wc, newTemplate)
+		err := counter.EncodeCounter(wc, newTemplate.DrawGuides)
 		if err != nil {
 			return nil, err
 		}

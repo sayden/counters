@@ -8,6 +8,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ToJSONFile serializes the given input object to JSON format and writes it to the specified file path.
+// If the directories in the output path do not exist, they will be created with appropriate permissions.
 func ToJSONFile(input interface{}, outputPath string) error {
 	dir := filepath.Dir(outputPath)
 	_ = os.MkdirAll(dir, 0750)

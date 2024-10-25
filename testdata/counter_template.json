@@ -1,0 +1,71 @@
+{
+  "width": 100,
+  "height": 100,
+  "margins": 2,
+  "font_height": 20,
+  "font_path": "../assets/freesans.ttf",
+  "font_color": "black",
+  "background_color": "white",
+  "image_scaling": "fitWidth",
+  "rows": 7,
+  "columns": 7,
+  "mode": "template",
+  "output_folder": "/tmp/generated",
+  "counters": [
+    {
+      "background_image": "../assets/binoculars.png",
+      "texts": [
+        {
+          "position": 3,
+          "font_color": "black",
+          "string": "Upper1"
+        },
+        {
+          "avoid_clipping": true,
+          "position": 11,
+          "string": "Counter2"
+        }
+      ],
+      "images": [
+        {
+          "position": 7,
+          "scale": 0.65,
+          "path": "../assets/binoculars.png"
+        },
+        {
+          "position": 15,
+          "scale": 0.25,
+          "path": "../assets/stripe.png"
+        }
+      ]
+    },
+    {
+      "background_image": "../assets/binoculars.png",
+      "texts": [
+        {
+          "position": 3,
+          "font_color": "black",
+          "string": "Upper2"
+        },
+        {
+          "font_height": 22,
+          "avoid_clipping": true,
+          "position": 11,
+          "string": "Counter2"
+        }
+      ],
+      "images": [
+        {
+          "position": 7,
+          "scale": 0.65,
+          "path": "../assets/binoculars.png"
+        },
+        {
+          "position": 15,
+          "scale": 0.25,
+          "path": "../assets/stripe.png"
+        }
+      ]
+    }
+  ]
+}

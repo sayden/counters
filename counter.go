@@ -109,6 +109,10 @@ func (c *Counter) GetCounterFilename(position int, suffix string, filenumber int
 			res += fmt.Sprintf(" %03d", filenumber)
 		}
 	}
+	if res == "" {
+		res = fmt.Sprintf("%03d", filenumber)
+	}
+	res = strings.TrimSpace(res)
 
 	filenamesInUse[res] = true
 

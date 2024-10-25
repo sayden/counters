@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -16,7 +15,7 @@ import (
 func ReadMarkupFile(markupFilepath string, destination interface{}) error {
 	extension := filepath.Ext(markupFilepath)
 
-	data, err := ioutil.ReadFile(markupFilepath)
+	data, err := os.ReadFile(markupFilepath)
 	if err != nil {
 		return errors.Wrap(err, "could not read file content")
 	}
@@ -38,7 +37,7 @@ func ReadMarkupFile(markupFilepath string, destination interface{}) error {
 }
 
 func FilenameExistsInFolder(filename, folder string) bool {
-	fs, err := ioutil.ReadDir(folder)
+	fs, err := os.ReadDir(folder)
 	if err != nil {
 		log.WithError(err).Fatal("could not read images folder")
 	}
