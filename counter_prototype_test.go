@@ -53,13 +53,13 @@ func TestJSONPrototypes(t *testing.T) {
 	assert.NoError(t, err)
 
 	// check the new template
-	assert.Equal(t, 6, len(newTempl.Counters))
+	assert.Equal(t, 8, len(newTempl.Counters))
 	assert.Equal(t, 2, len(newTempl.Counters[0].Texts))
 
 	// check the marshalling of the template to an expected byte slice
 	actualBytes, err := json.MarshalIndent(newTempl, "", "  ")
 	assert.NoError(t, err)
-	if !assert.Equal(t, 13360, len(actualBytes)) {
+	if !assert.Equal(t, 17678, len(actualBytes)) {
 		t.FailNow()
 	}
 
@@ -71,7 +71,7 @@ func TestJSONPrototypes(t *testing.T) {
 	assert.NoError(t, err)
 
 	// // ensure we are using the expected file and that it has not been altered by mistake
-	if !assert.Equal(t, 13360, len(expectedBytes), "expected file has been altered, aborting test") {
+	if !assert.Equal(t, 17678, len(expectedBytes), "expected file has been altered, aborting test") {
 		t.FailNow()
 	}
 
