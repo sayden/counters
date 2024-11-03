@@ -2,7 +2,12 @@ package counters
 
 import "encoding/xml"
 
-type GameModule struct {
+const (
+	counterTemplate = `+/null/prototype;UnitStep	prototype;RU\	emb2;Activate;128;A;;128;;;128;;;;1;false;0;0;{{ .FilenameFront }},{{ .FilenameBack }};,;false;{{ .CounterName }};;;true;StepValue;1;1;true;65,130;;;;1.0;;true\\	piece;;;{{ .FilenameFront }};{{ .Id }}/	\	1\\	null;0;0;398;0`
+	oldTemplate     = `+/null/prototype;BasicPrototype	piece;;;{{ .Filename }};{{ .PieceName}}/	null;0;0;{{ .Id }};0`
+)
+
+type VassalGameModule struct {
 	XMLName xml.Name `xml:"VASSAL.build.GameModule"`
 
 	ModuleOther1               string  `xml:"ModuleOther1,attr"`
@@ -104,4 +109,16 @@ type TemplateData struct {
 	Filename  string
 	PieceName string
 	Id        string
+}
+
+type PieceTemplateData struct {
+	BackFilename  string
+	FrontFilename string
+	PieceName     string
+	Id            string
+	FlipName      string
+}
+
+type VassalCounterTemplateSettings struct {
+	SideName string `json:"side_name,omitempty"`
 }

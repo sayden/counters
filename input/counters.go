@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/pkg/errors"
 	"github.com/sayden/counters"
@@ -13,6 +14,7 @@ import (
 // for Cli stuff
 func ReadCounterTemplate(inputPath string, outputPathForTemplate ...string) (*counters.CounterTemplate, error) {
 	extension := filepath.Ext(inputPath)
+	filenamesInUse := &sync.Map{}
 
 	switch extension {
 	case ".csv":
@@ -32,7 +34,7 @@ func ReadCounterTemplate(inputPath string, outputPathForTemplate ...string) (*co
 			return nil, errors.Wrap(err, "could not read JSON file")
 		}
 
-		return counters.ParseCounterTemplate(byt)
+		return counters.ParseCounterTemplate(byt, filenamesInUse)
 	}
 
 	return nil, fmt.Errorf("extension '%s' not found", extension)

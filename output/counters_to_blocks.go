@@ -4,6 +4,7 @@ import (
 	"image/color"
 	"os"
 
+	"github.com/charmbracelet/log"
 	"github.com/disintegration/imaging"
 	"github.com/fogleman/gg"
 	"github.com/pkg/errors"
@@ -21,7 +22,7 @@ func CountersToBlocks(frontTemplate, backTemplate *counters.CounterTemplate) err
 	counterPos := 0
 	row := 0
 	// fileNumber := 1
-	gs := newGlobalState(frontTemplate, canvas)
+	gs := newGlobalState(frontTemplate)
 
 	//Iterate rows and columns, painting a counter on each
 iteration:
@@ -53,9 +54,9 @@ iteration:
 				addBackCounterToBlockCanvas(backCounterCanvas, blockCanvas)
 			}
 
-			err = writeCounterToFile(blockCanvas, &counter, gs)
-			if err != nil {
-				return err
+			iw := imageWriter{canvas: blockCanvas, template: gs.template}
+			if err = iw.createFile(&counter, gs); err != nil {
+				log.Error("error trying to write counter to file", err)
 			}
 
 			counterPos++

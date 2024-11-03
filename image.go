@@ -21,6 +21,10 @@ type Image struct {
 	AvoidCropping bool    `json:"avoid_cropping,omitempty"`
 }
 
+func (i Image) GetSettings() *Settings {
+	return &i.Settings
+}
+
 type Images []Image
 
 func (i *Image) Draw(dc *gg.Context, pos int) error {
@@ -48,14 +52,16 @@ func (i *Image) Draw(dc *gg.Context, pos int) error {
 
 	switch i.ImageScaling {
 	case IMAGE_SCALING_FIT_WIDTH:
-		img = imaging.Resize(img, int(math.Ceil(float64(dc.Width())*i.Scale)), 0, imaging.Box)
+		img = imaging.Resize(img, int(math.Ceil(float64(dc.Width())*i.Scale)), 0, imaging.Lanczos)
 	case IMAGE_SCALING_FIT_WRAP:
-		img = imaging.Resize(img, dc.Width(), dc.Height(), imaging.Box)
+		img = imaging.Resize(img, dc.Width(), dc.Height(), imaging.Lanczos)
 	case IMAGE_SCALING_FIT_HEIGHT:
-		img = imaging.Resize(img, int(math.Ceil(float64(dc.Height())*i.Scale)), 0, imaging.Box)
+		img = imaging.Resize(img, int(math.Ceil(float64(dc.Height())*i.Scale)), 0, imaging.Lanczos)
 	case IMAGE_SCALING_FIT_NONE:
 		// Just apply scaling to image dimensions
-		img = imaging.Resize(img, int(math.Ceil(float64(img.Bounds().Dx())*i.Scale)), 0, imaging.Box)
+		if i.Scale != 1 {
+			img = imaging.Resize(img, int(math.Ceil(float64(img.Bounds().Dx())*i.Scale)), 0, imaging.Lanczos)
+		}
 	default:
 		// Do nothing, image untouched from original
 	}

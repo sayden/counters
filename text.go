@@ -22,6 +22,10 @@ type Text struct {
 	TextBgColor         color.Color `json:"-"`
 }
 
+func (t Text) GetSettings() *Settings {
+	return &t.Settings
+}
+
 type Texts []Text
 
 // DrawTextsOnCanvas draws the texts provided on areaCanvas at positions `w` and `h`

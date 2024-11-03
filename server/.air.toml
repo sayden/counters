@@ -5,4 +5,5 @@
   include_ext = ["go", "tpl", "templ"]
   exclude_file = ["*_templ.go"]
   exclude_dir = ["vendor", "node_modules", "tmp"]
+  include_dir = ["../"]
   silent = false

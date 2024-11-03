@@ -11,6 +11,10 @@ import (
 	"github.com/thehivecorporation/log"
 )
 
+type SettingsGetter interface {
+	GetSettings() *Settings
+}
+
 // Template Settings
 //
 //	Counter / Card Settings
@@ -61,6 +65,8 @@ type Settings struct {
 	Position int `json:"position,omitempty"`
 
 	Skip bool `json:"skip,omitempty"`
+
+	BackPersistent bool `json:"back_persistent,omitempty"`
 }
 
 func (s *Settings) ApplySettingsScaling(scaling float64) {

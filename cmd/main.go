@@ -1,7 +1,9 @@
 package main
 
 import (
+	"flag"
 	"os"
+	"runtime/pprof"
 
 	"github.com/alecthomas/kong"
 	"github.com/charmbracelet/log"
@@ -25,13 +27,21 @@ var Cli struct {
 }
 
 func main() {
+	flag.Parse()
+	f, err := os.Create("cpu.prof")
+	if err != nil {
+		log.Fatal(err)
+	}
+	pprof.StartCPUProfile(f)
+	defer pprof.StopCPUProfile()
+
 	logger.SetReportTimestamp(false)
 	logger.SetReportCaller(false)
 	logger.SetLevel(log.DebugLevel)
 
 	ctx := kong.Parse(&Cli)
 
-	err := ctx.Run()
+	err = ctx.Run()
 	ctx.FatalIfErrorf(err)
 
 	logger.Info("Done")

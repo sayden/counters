@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"sync"
 
 	"github.com/alecthomas/kong"
 	"github.com/pkg/errors"
@@ -46,6 +47,8 @@ func (i *JsonOutput) Run(ctx *kong.Context) error {
 		return err
 	}
 
+	filenamesInUse := &sync.Map{}
+
 	switch inputContent {
 	case counters.FileContent_CSV:
 		switch Cli.Json.OutputType {
@@ -79,7 +82,7 @@ func (i *JsonOutput) Run(ctx *kong.Context) error {
 		switch Cli.Json.OutputType {
 		case "counters":
 			// JSON counters to Counters
-			newTempl, err := counterTemplate.ExpandPrototypeCounterTemplate()
+			newTempl, err := counterTemplate.ExpandPrototypeCounterTemplate(filenamesInUse)
 			if err != nil {
 				return errors.Wrap(err, "error trying to convert a counter template into another counter template")
 			}
@@ -87,7 +90,7 @@ func (i *JsonOutput) Run(ctx *kong.Context) error {
 
 		case "back-counters":
 			// JSON counters to Counters
-			newTempl, err := counterTemplate.ExpandPrototypeCounterTemplate()
+			newTempl, err := counterTemplate.ExpandPrototypeCounterTemplate(filenamesInUse)
 			if err != nil {
 				return errors.Wrap(err, "error trying to convert a counter template into another counter template")
 			}

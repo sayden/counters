@@ -48,7 +48,7 @@ func main() {
 
 	router.GET("/", func(c *gin.Context) { c.HTML(http.StatusOK, "index.html", nil) })
 
-	ch := make(chan bool)
+	ch := make(chan []byte)
 	router.POST("/code", handlerCode(ch))
 	router.GET("/render", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "render.html", nil)
@@ -72,7 +72,7 @@ func main() {
 	log.Fatal(server.ListenAndServe())
 }
 
-func handlerListen(ch <-chan bool) func(c *gin.Context) {
+func handlerListen(ch <-chan []byte) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		// Set headers for SSE
 		c.Header("Content-Type", "text/event-stream")
@@ -105,17 +105,25 @@ func handlerListen(ch <-chan bool) func(c *gin.Context) {
 			case <-clientChan:
 				fmt.Println("Client disconnected")
 				return
-			case <-ch:
-				func() {
-					fmt.Fprintf(c.Writer, "event: Grid\ndata:ok\n\n")
-					flusher.Flush()
-				}()
+			case byt := <-ch:
+				response, err := generateCounter(byt)
+				if err != nil {
+					log.Error(err)
+					continue
+				}
+
+				globalResponse.Lock()
+				globalResponse.response = response
+				globalResponse.Unlock()
+
+				fmt.Fprintf(c.Writer, "event: Grid\ndata:ok\n\n")
+				flusher.Flush()
 			}
 		}
 	}
 }
 
-func handlerCode(ch chan<- bool) func(c *gin.Context) {
+func handlerCode(ch chan<- []byte) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		defer func() {
 			if err := os.Chdir(startingFolder); err != nil {
@@ -136,30 +144,15 @@ func handlerCode(ch chan<- bool) func(c *gin.Context) {
 			return
 		}
 
-		buf := new(bytes.Buffer)
-		wc := base64.NewEncoder(base64.StdEncoding, buf)
-		defer wc.Close()
+		ch <- byt
 
-		response, err := generateCounter(byt)
-		if err != nil {
-			log.Error(err)
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-
-		globalResponse.Lock()
-		defer globalResponse.Unlock()
-		globalResponse.response = response
-		ch <- true
-
-		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+		c.JSON(http.StatusOK, gin.H{"status": "ok", "bytes_total": len(byt)})
 	}
 }
 
 func generateCounter(byt []byte) (response, error) {
-	// ParseTemplate requires a byte slice, this is because it Unmarshals the JSON on top
-	// of a CounterTemplate struct with default values, overriding them with the JSON values
-	tempTemplate, err := counters.ParseCounterTemplate(byt)
+	filenamesInUse := &sync.Map{}
+	tempTemplate, err := counters.ParseCounterTemplate(byt, filenamesInUse)
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +166,6 @@ func generateCounter(byt []byte) (response, error) {
 
 	i := 0
 	fileNumberPlaceholder := 0
-	filenamesInUse := make(map[string]bool)
 	for _, counter := range newTemplate.Counters {
 		buf := new(bytes.Buffer)
 		wc := base64.NewEncoder(base64.StdEncoding, buf)
@@ -186,7 +178,7 @@ func generateCounter(byt []byte) (response, error) {
 
 		counterImage := counterImage{
 			CounterImage: "data:image/png;base64," + buf.String(),
-			Id:           counter.GetCounterFilename(i, "img", fileNumberPlaceholder, filenamesInUse),
+			Id:           counter.GetCounterFilename(i, filenamesInUse),
 		}
 
 		i++
@@ -196,6 +188,6 @@ func generateCounter(byt []byte) (response, error) {
 		wc.Close()
 	}
 
-	log.Debug("generateCounters", "finished", "ok")
+	log.Debug("generateCounters", "total", len(response))
 	return response, nil
 }

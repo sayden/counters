@@ -1,11 +1,15 @@
 package counters
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strings"
+	"sync"
+	"text/template"
 
 	"github.com/fogleman/gg"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/thehivecorporation/log"
 )
@@ -23,7 +27,10 @@ type Counter struct {
 	Extra  *Extra `json:"extra,omitempty"`
 
 	// Generate the following counter with 'back' suffix in its filename
-	Back *Counter `json:",omitempty"`
+	Back *Counter `json:"back,omitempty"`
+
+	Filename    string     `json:"filename,omitempty"`
+	VassalPiece *PieceSlot `json:"vassal,omitempty"`
 }
 
 type Counters []Counter
@@ -65,9 +72,14 @@ func (c *Counter) GetTextInPosition(i int) string {
 // filenumber: CounterTemplate.PositionNumberForFilename. So it will always be fixed number
 // position: The position of the text in the counter (0-16)
 // suffix: A suffix on the file. Constant
-func (c *Counter) GetCounterFilename(position int, suffix string, filenumber int, filenamesInUse map[string]bool) string {
+func (c *Counter) GetCounterFilename(position int, filenamesInUse *sync.Map) string {
+	if c.Filename != "" {
+		return c.Filename
+	}
+
 	var b strings.Builder
-	name := c.GetTextInPosition(position)
+	var name string
+	name = c.GetTextInPosition(position)
 
 	if c.Extra != nil {
 		if c.Extra.TitlePosition != nil && *c.Extra.TitlePosition != position {
@@ -97,26 +109,33 @@ func (c *Counter) GetCounterFilename(position int, suffix string, filenumber int
 		b.WriteString(name + " ")
 	}
 
-	if suffix != "" {
-		b.WriteString(suffix)
-	}
-
 	res := b.String()
 	res = strings.TrimSpace(res)
 
-	if filenamesInUse[res] {
-		if filenumber >= 0 {
-			res += fmt.Sprintf(" %03d", filenumber)
+	filenumber := 0
+	_, isFound := filenamesInUse.Load(res)
+	if isFound {
+		filenumber = 0
+		for {
+			tempRes := fmt.Sprintf("%s%03d", res, filenumber)
+			_, isFound = filenamesInUse.Load(tempRes)
+			if !isFound {
+				break
+			}
+			filenumber++
 		}
 	}
+
 	if res == "" {
 		res = fmt.Sprintf("%03d", filenumber)
 	}
 	res = strings.TrimSpace(res)
 
-	filenamesInUse[res] = true
+	filenamesInUse.Store(res, true)
+	c.Extra.Title = res
 
 	res += ".png"
+	c.Filename = res
 
 	return res
 }
@@ -197,4 +216,55 @@ func (c *Counter) canvas() (*gg.Context, error) {
 	}
 
 	return dc, nil
+}
+
+func (c *Counter) ToVassal(sideName string) error {
+	if c.Filename == "" {
+		return errors.New("vassal: counter filename is empty")
+	}
+	if sideName == "" {
+		return errors.New("vassal: side name is empty")
+	}
+
+	if strings.Contains(c.Extra.Title, "_back") {
+		return nil
+	}
+
+	pieceTemplate := "+/null/prototype;Basic Pieces	emb2;" +
+		"{{ .FlipName }};128;A;;128;;;128;;;;1;false;0;0;" +
+		"{{ .BackFilename }};Back;true;Flip;;;false;;1;1;false;;;;Description;1.0;;true\\	piece;;;" +
+		"{{ .FrontFilename }};" +
+		"{{ .PieceName }}/	-1\\	null;0;0;;1;ppScale;1.0"
+
+	xmlTemplate, err := template.New("xml").Parse(pieceTemplate)
+	if err != nil {
+		return fmt.Errorf("could not parse template string %w", err)
+	}
+
+	uuid := uuid.New().String()
+	buf := bytes.NewBufferString("")
+	pieceTemp := PieceTemplateData{
+		FrontFilename: c.Filename,
+		BackFilename:  c.Extra.Title + "_back.png",
+		FlipName:      sideName,
+		PieceName:     c.Filename,
+		Id:            uuid,
+	}
+
+	err = xmlTemplate.ExecuteTemplate(buf, "xml", pieceTemp)
+	if err != nil {
+		return fmt.Errorf("could not execute template %w", err)
+	}
+
+	piece := PieceSlot{
+		EntryName: c.Filename,
+		Gpid:      uuid,
+		Height:    c.Height,
+		Width:     c.Width,
+		Data:      buf.String(),
+	}
+
+	c.VassalPiece = &piece
+
+	return nil
 }

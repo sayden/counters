@@ -36,9 +36,7 @@ func CSVToVassalFile(cfg VassalConfig) error {
 	counterTemplate.OutputFolder = counters.BASE_FOLDER + "/images"
 	counterTemplate.PositionNumberForFilename = 3
 
-	if err = output.CountersToPNG(counterTemplate); err != nil {
-		return err
-	}
+	output.CountersToPNG(counterTemplate)
 
 	// Hardcoded output file, user selects the output of the vmod file
 	xmlBytes, err := output.GetVassalDataForCounters(counterTemplate, counters.VassalInputXmlFile)

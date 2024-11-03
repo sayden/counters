@@ -12,7 +12,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/log"
 	"github.com/fogleman/gg"
-	"github.com/pkg/errors"
 	"github.com/sayden/counters"
 )
 
@@ -22,28 +21,52 @@ const (
 )
 
 type globalState struct {
-	counterPos     int
-	fileNumber     int
-	filenamesInUse map[string]bool
+	counterPos int
+	fileNumber int
+	// filenamesInUse map[string]bool
+	filenamesInUse *sync.Map
 	template       *counters.CounterTemplate
-	canvas         *gg.Context
+	sync.RWMutex
 }
 
-func newGlobalState(template *counters.CounterTemplate, canvas *gg.Context) *globalState {
+func (gs *globalState) setCounterPos(pos int) {
+	gs.Lock()
+	defer gs.Unlock()
+	gs.counterPos = pos
+}
+
+func (gs *globalState) getCounterPos() int {
+	gs.RLock()
+	defer gs.RUnlock()
+	return gs.counterPos
+}
+
+func (gs *globalState) incrFilenumber() {
+	gs.Lock()
+	defer gs.Unlock()
+	gs.fileNumber++
+}
+
+func (gs *globalState) getFileNumber() int {
+	gs.RLock()
+	defer gs.RUnlock()
+	return gs.fileNumber
+}
+
+func newGlobalState(template *counters.CounterTemplate) *globalState {
 	return &globalState{
-		filenamesInUse: make(map[string]bool),
+		// filenamesInUse: make(map[string]bool),
+		filenamesInUse: new(sync.Map),
 		fileNumber:     1,
-		canvas:         canvas,
 		template:       template,
 	}
 }
 
 // CountersToPNG generates PNG images based on the provided CounterTemplate.
-func CountersToPNG(template *counters.CounterTemplate) error {
-	var canvas *gg.Context
+func CountersToPNG(template *counters.CounterTemplate) {
 	_ = os.MkdirAll(template.OutputFolder, 0750)
 
-	gs := newGlobalState(template, canvas)
+	gs := newGlobalState(template)
 
 	// Progress bar
 	total := 0
@@ -59,47 +82,44 @@ func CountersToPNG(template *counters.CounterTemplate) error {
 	go pbar.Run()
 	defer pbar.Quit()
 
-	var wg sync.WaitGroup
-	wg.Add(total)
+	ch := make(chan *counters.Counter, 50)
+	for i := 0; i < 50; i++ {
+		go generateCounterToFile(ch, template.DrawGuides, gs, pbar, template.Vassal.SideName)
+	}
+
 	for i := 0; i < total; i++ {
 		counter := template.Counters[i]
-		go func(counter *counters.Counter, pbar *tea.Program) {
-			defer wg.Done()
-			if counter.Skip {
-				return
-			}
-
-			counterCanvas, err := counter.Canvas(template.DrawGuides)
-			if err != nil {
-				log.Error("error trying to create counter canvas", err)
-			}
-
-			if err = writeCounterToFile(counterCanvas, counter, gs); err != nil {
-				log.Error("error trying to write counter to file", err)
-			}
-
-			pbar.Send(i + 1)
-		}(&counter, pbar)
+		ch <- &counter
 	}
 
-	wg.Wait()
 	pbar.Send(100)
 	pbar.Wait()
-
-	return nil
+	close(ch)
 }
 
-func writeCounterToFile(dc *gg.Context, counter *counters.Counter, gs *globalState) error {
-	iw := imageWriter{
-		canvas:   dc,
-		template: gs.template,
-	}
+func generateCounterToFile(ch <-chan *counters.Counter, drawGuides bool, gs *globalState, pbar *tea.Program, vassalSide string) {
+	for counter := range ch {
+		if counter.Skip {
+			pbar.Send(1)
+			continue
+		}
 
-	if err := iw.createFile(counter, gs); err != nil {
-		return errors.Wrap(err, "error trying to write counter file")
-	}
+		counterCanvas, err := counter.Canvas(drawGuides)
+		if err != nil {
+			log.Error("error trying to create counter canvas", err)
+			pbar.Send(1)
+			continue
+		}
 
-	return nil
+		iw := imageWriter{canvas: counterCanvas, template: gs.template}
+		if err = iw.createFile(counter, gs); err != nil {
+			log.Error("error trying to write counter to file", err)
+			pbar.Send(1)
+			continue
+		}
+
+		pbar.Send(1)
+	}
 }
 
 type imageWriter struct {
@@ -112,20 +132,17 @@ type imageWriter struct {
 func (iw *imageWriter) createFile(counter *counters.Counter, gs *globalState) error {
 	// Use sequencing of numbers or a position in the counter texts to name files
 	for i := 0; i < *counter.Multiplier; i++ {
-		counterFilename := counter.GetCounterFilename(iw.template.PositionNumberForFilename, "",
-			gs.fileNumber, gs.filenamesInUse)
-
-		filepath := path.Join(iw.template.OutputFolder, counterFilename)
 		if counter.Skip {
 			continue
 		}
 
-		log.Debug("Saving file: ", filepath)
+		filepath := path.Join(iw.template.OutputFolder, counter.Filename)
+
 		if err := iw.canvas.SavePNG(filepath); err != nil {
-			log.Error("file", filepath, "could not save PNG file")
-			return err
+			return fmt.Errorf("could not save PNG file: %w", err)
 		}
-		gs.fileNumber++
+
+		gs.incrFilenumber()
 	}
 
 	return nil

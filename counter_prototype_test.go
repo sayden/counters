@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"os"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -22,7 +23,8 @@ func TestCounterPrototypeToCounter(t *testing.T) {
 		},
 	}
 
-	counter, err := proto.ToCounters()
+	filenamesInUse := &sync.Map{}
+	counter, err := proto.ToCounters(filenamesInUse)
 	if assert.NoError(t, err) {
 		assert.Equal(t, 2, len(counter))
 		assert.Equal(t, "text", counter[0].Texts[0].String)
@@ -43,7 +45,8 @@ func TestJSONPrototypes(t *testing.T) {
 		t.FailNow()
 	}
 
-	newTempl, err := ParseCounterTemplate(byt)
+	filenamesInUse := &sync.Map{}
+	newTempl, err := ParseCounterTemplate(byt, filenamesInUse)
 	if !assert.NoError(t, err, "error parsing template") {
 		t.FailNow()
 	}

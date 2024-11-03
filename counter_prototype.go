@@ -3,7 +3,10 @@ package counters
 import (
 	"encoding/json"
 	"fmt"
+	"sync"
 
+	"dario.cat/mergo"
+	"github.com/charmbracelet/log"
 	"github.com/pkg/errors"
 	deepcopy "github.com/qdm12/reprint"
 )
@@ -25,153 +28,195 @@ type TextPrototype struct {
 	StringList []string `json:"string_list"`
 }
 
-func (p *CounterPrototype) ToCounters() ([]Counter, error) {
+func (p *CounterPrototype) ToCounters(filenamesInUse *sync.Map, sideName string, positionNumberForFilename int) ([]Counter, error) {
 	cts := make([]Counter, 0)
 
 	// You can prototype texts and images, so one of the two must be present, get their length
-	length, err := p.isExpectedLengthsCorrect()
+	length, err := p.isLengthConsistent()
 	if err != nil {
 		byt, _ := json.MarshalIndent(p, "", "  ")
 		return nil, fmt.Errorf("error in counter prototype\n%s\n%w", string(byt), err)
 	}
 
+	// this is a 2 step proccess for every prototype. First we apply the prototype to the front counter
+	// then, using the resulting front counter, we apply the back prototype to it
 	for i := 0; i < length; i++ {
 		var newCounter Counter
 		if err := deepcopy.FromTo(p.Counter, &newCounter); err != nil {
 			return nil, err
 		}
 
-		if p.TextPrototypes != nil {
-			for _, textPrototype := range p.TextPrototypes {
-				originalText := Text{}
-				if err := deepcopy.FromTo(textPrototype.Text, &originalText); err != nil {
-					return nil, err
-				}
-				originalText.String = textPrototype.StringList[i]
-				newCounter.Texts = append(newCounter.Texts, originalText)
-			}
+		if err = p.applyPrototypes(&newCounter, i); err != nil {
+			return nil, err
 		}
 
-		if p.ImagePrototypes != nil {
-			for _, imagePrototype := range p.ImagePrototypes {
-				originalImage := Image{}
-				if err := deepcopy.FromTo(imagePrototype.Image, &originalImage); err != nil {
-					return nil, err
-				}
-				originalImage.Path = imagePrototype.PathList[i]
-				newCounter.Images = append(newCounter.Images, originalImage)
-			}
+		var counterFilename string
+		if p.Extra != nil && p.Extra.TitlePosition != nil {
+			counterFilename = newCounter.GetCounterFilename(*p.Extra.TitlePosition, filenamesInUse)
+		} else {
+			counterFilename = newCounter.GetCounterFilename(positionNumberForFilename, filenamesInUse)
 		}
-		cts = append(cts, newCounter)
+		newCounter.Filename = counterFilename
 
 		if p.Back != nil {
-			backCounter := p.Back.Counter
-			images := p.Back.Counter.Images
-			texts := p.Back.Counter.Texts
-			if err := deepcopy.FromTo(newCounter, &backCounter); err != nil {
+			var tempBackCounter Counter
+			if err := deepcopy.FromTo(newCounter, &tempBackCounter); err != nil {
 				return nil, err
 			}
-			if backCounter.Extra != nil {
-				backCounter.Extra.Title += " back"
+
+			backCounter, err := mergeFrontAndBack(&tempBackCounter, p.Back, i)
+			if err != nil {
+				return nil, err
 			}
 
-			// If 2 images shares position, the one in the back counter will be used
-			frontImages := newCounter.Images
-			backCounter.Images = images
-			for _, frontImage := range frontImages {
-				// check if the image's position already exists in images, skip it in such case
-				found := false
-				for _, backImage := range backCounter.Images {
-					if frontImage.Position == backImage.Position {
-						found = true
-						if frontImage.BackPersistent {
-							backCounter.Images = append(backCounter.Images, frontImage)
-						}
-						break
-					}
-				}
+			backCounter.Filename = newCounter.Extra.Title + "_back.png"
 
-				if !found {
-					backCounter.Images = append(backCounter.Images, frontImage)
-				}
-			}
-
-			// Do the same with texts
-			frontTexts := newCounter.Texts
-			backCounter.Texts = texts
-			for _, frontText := range frontTexts {
-				// check if the image's position already exists in images, skip it in such case
-				found := false
-				for _, backText := range backCounter.Texts {
-					if frontText.Position == backText.Position {
-						found = true
-						if frontText.BackPersistent {
-							backCounter.Texts = append(backCounter.Texts, frontText)
-						}
-						break
-					}
-				}
-
-				if !found {
-					backCounter.Texts = append(backCounter.Texts, frontText)
-				}
-			}
-
-			if p.Back.ImagePrototypes != nil {
-				for _, imagePrototype := range p.Back.ImagePrototypes {
-					originalImage := Image{}
-					if err := deepcopy.FromTo(imagePrototype.Image, &originalImage); err != nil {
-						return nil, err
-					}
-					originalImage.Path = imagePrototype.PathList[i]
-
-					// Replace the image in the back counter on the same position
-					found := false
-					for j, image := range backCounter.Images {
-						if image.Position == originalImage.Position {
-							backCounter.Images[j] = originalImage
-							found = true
-							break
-						}
-					}
-					if !found {
-						backCounter.Images = append(backCounter.Images, originalImage)
-					}
-				}
-			}
-
-			if p.Back.TextPrototypes != nil {
-				for _, textPrototype := range p.Back.TextPrototypes {
-					originalText := Text{}
-					if err := deepcopy.FromTo(textPrototype.Text, &originalText); err != nil {
-						return nil, err
-					}
-					originalText.String = textPrototype.StringList[i]
-
-					// Replace the text in the back counter on the same position
-					found := false
-					for j, text := range backCounter.Texts {
-						if text.Position == originalText.Position {
-							backCounter.Texts[j] = originalText
-							found = true
-							break
-						}
-					}
-					if !found {
-						backCounter.Texts = append(backCounter.Texts, originalText)
-					}
+			if sideName != "" {
+				err = backCounter.ToVassal(sideName)
+				if err != nil {
+					log.Warn("could not create vassal piece")
 				}
 			}
 
 			cts = append(cts, backCounter)
 		}
 
+		if sideName != "" {
+			err = newCounter.ToVassal(sideName)
+			if err != nil {
+				log.Warn("could not create vassal piece")
+			}
+		}
+		cts = append(cts, newCounter)
 	}
 
 	return cts, nil
 }
 
-func (p *CounterPrototype) isExpectedLengthsCorrect() (int, error) {
+/*
+applyPrototypes applies the text and image prototypes to the given counter at the specified index.
+It deep copies the text and image prototypes, updates their string and path values respectively,
+and appends them to the counter's texts and images.
+*/
+func (p *CounterPrototype) applyPrototypes(newCounter *Counter, index int) error {
+	if p.TextPrototypes != nil {
+		for _, textPrototype := range p.TextPrototypes {
+			originalText := Text{}
+			if err := deepcopy.FromTo(textPrototype.Text, &originalText); err != nil {
+				return err
+			}
+			originalText.String = textPrototype.StringList[index]
+			newCounter.Texts = append(newCounter.Texts, originalText)
+		}
+	}
+
+	if p.ImagePrototypes != nil {
+		for _, imagePrototype := range p.ImagePrototypes {
+			originalImage := Image{}
+			if err := deepcopy.FromTo(imagePrototype.Image, &originalImage); err != nil {
+				return err
+			}
+			originalImage.Path = imagePrototype.PathList[index]
+			newCounter.Images = append(newCounter.Images, originalImage)
+		}
+	}
+
+	return nil
+}
+
+/*
+mergeFrontAndBack merges the images and texts from both counters. If the back prototype exists and
+it has its own image or text prototypes, they are applied to the back counter, replacing or adding
+to the existing images and texts.
+*/
+func mergeFrontAndBack(frontCounter *Counter, backPrototype *CounterPrototype, index int) (Counter, error) {
+	backCounter := backPrototype.Counter
+	if err := mergo.Merge(&backCounter, frontCounter); err != nil {
+		return Counter{}, err
+	}
+	backCounter.Extra.Title = frontCounter.Extra.Title + "_back"
+
+	backCounter.Images = mergeImagesOrTexts(frontCounter.Images, backCounter.Images)
+	backCounter.Texts = mergeImagesOrTexts(frontCounter.Texts, backCounter.Texts)
+
+	if backPrototype.ImagePrototypes != nil {
+		for _, imagePrototype := range backPrototype.ImagePrototypes {
+			originalImage := Image{}
+			if err := deepcopy.FromTo(imagePrototype.Image, &originalImage); err != nil {
+				return Counter{}, err
+			}
+			originalImage.Path = imagePrototype.PathList[index]
+
+			backCounter.Images = replaceOrAddPrototypes(backCounter.Images, originalImage)
+		}
+	}
+
+	if backPrototype.TextPrototypes != nil {
+		for _, textPrototype := range backPrototype.TextPrototypes {
+			originalText := Text{}
+			if err := deepcopy.FromTo(textPrototype.Text, &originalText); err != nil {
+				return Counter{}, err
+			}
+			originalText.String = textPrototype.StringList[index]
+
+			backCounter.Texts = replaceOrAddPrototypes(backCounter.Texts, originalText)
+		}
+	}
+
+	return backCounter, nil
+}
+
+/*
+mergeImagesOrTexts is used to merge texts or images slices from the front and back of the counter. It
+skips items sharing the same position unless the field BackPersistent is set to true, in which case
+both items are kept with the front will be on top of the image
+*/
+func mergeImagesOrTexts[T SettingsGetter](frontPrototypes, backPrototypes []T) []T {
+	for _, frontPrototype := range frontPrototypes {
+		found := false
+		for _, backPrototype := range backPrototypes {
+			if frontPrototype.GetSettings().Position == backPrototype.GetSettings().Position {
+				found = true
+				if frontPrototype.GetSettings().BackPersistent {
+					backPrototypes = append(backPrototypes, frontPrototype)
+				}
+				break
+			}
+		}
+
+		if !found {
+			backPrototypes = append(backPrototypes, frontPrototype)
+		}
+	}
+
+	if len(frontPrototypes) == 0 {
+		return backPrototypes
+	}
+
+	return backPrototypes
+}
+
+// replaceOrAddPrototypes is used to override texts or images in the back of the counter. It checks
+// if a prototype with the same position as newPrototype already exists and replaces it if it does
+// or adds it if it doesn't
+func replaceOrAddPrototypes[T SettingsGetter](originals []T, newPrototype T) []T {
+	found := false
+	for j, original := range originals {
+		if original.GetSettings().Position == newPrototype.GetSettings().Position {
+			originals[j] = newPrototype
+			found = true
+			break
+		}
+	}
+	if !found {
+		originals = append(originals, newPrototype)
+	}
+
+	return originals
+}
+
+// isLengthConsistent checks if the lengths of text and image prototypes are consistent.
+func (p *CounterPrototype) isLengthConsistent() (int, error) {
 	// find a reference length
 	length := p.getTextLength(p.TextPrototypes)
 

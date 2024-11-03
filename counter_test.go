@@ -22,11 +22,7 @@ func TestGetCounterFilename(t *testing.T) {
 			name: "Basic case",
 			counter: Counter{
 				Texts: []Text{
-					{
-						Settings: Settings{Position: 0},
-						String:   "Test",
-					},
-				},
+					{Settings: Settings{Position: 0}, String: "Test"}},
 			},
 			position:       0,
 			suffix:         "suffix",
@@ -38,14 +34,8 @@ func TestGetCounterFilename(t *testing.T) {
 			name: "With Extra Title",
 			counter: Counter{
 				Texts: []Text{
-					{
-						Settings: Settings{Position: 0},
-						String:   "Test",
-					},
-				},
-				Extra: &Extra{
-					Title: "ExtraTitle",
-				},
+					{Settings: Settings{Position: 0}, String: "Test"}},
+				Extra: &Extra{Title: stringP("ExtraTitle")},
 			},
 			position:       0,
 			suffix:         "suffix",
@@ -57,18 +47,10 @@ func TestGetCounterFilename(t *testing.T) {
 			name: "With Title Position",
 			counter: Counter{
 				Texts: []Text{
-					{
-						Settings: Settings{Position: 0},
-						String:   "Test",
-					},
-					{
-						Settings: Settings{Position: 1},
-						String:   "TitlePosition",
-					},
+					{Settings: Settings{Position: 0}, String: "Test"},
+					{Settings: Settings{Position: 1}, String: "TitlePosition"},
 				},
-				Extra: &Extra{
-					TitlePosition: intP(1),
-				},
+				Extra: &Extra{TitlePosition: intP(1)},
 			},
 			position:       0,
 			suffix:         "suffix",
@@ -80,10 +62,7 @@ func TestGetCounterFilename(t *testing.T) {
 			name: "Filename in use",
 			counter: Counter{
 				Texts: []Text{
-					{
-						Settings: Settings{Position: 0},
-						String:   "Test",
-					},
+					{Settings: Settings{Position: 0}, String: "Test"},
 				},
 			},
 			position:       0,

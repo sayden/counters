@@ -44,7 +44,9 @@ func jsonToAsset(inputPath, outputPath string) (err error) {
 		newTemplate.OutputFolder = outputPath
 	}
 
-	return output.CountersToPNG(newTemplate)
+	output.CountersToPNG(newTemplate)
+
+	return nil
 }
 
 func jsonToBlock(blockBack string) (err error) {

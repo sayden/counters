@@ -2,6 +2,7 @@ package output
 
 import (
 	"os"
+	"sync"
 	"testing"
 
 	"github.com/sayden/counters"
@@ -13,7 +14,9 @@ func TestCountersToPNG(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	template, err := counters.ParseCounterTemplate(byt)
+
+	filenamesInUse := &sync.Map{}
+	template, err := counters.ParseCounterTemplate(byt, filenamesInUse)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -23,10 +26,7 @@ func TestCountersToPNG(t *testing.T) {
 	}
 	t.Skip("Skipping test TestCountersToPNG because progress bar provoques a deadlock")
 
-	err = CountersToPNG(template)
-	if err != nil {
-		t.Fatal(err)
-	}
+	CountersToPNG(template)
 
 	// Two files should have been created in /tmp/generated folder
 	f1, err := os.ReadFile(template.OutputFolder + "/counter_1.png")
