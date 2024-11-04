@@ -1,169 +1,133 @@
 package output
 
 import (
-	"bytes"
 	"encoding/xml"
 	"fmt"
-	"html/template"
 	"os"
-	"sync"
+	"path"
 
 	"github.com/pkg/errors"
 	"github.com/sayden/counters"
 	"github.com/sayden/counters/fsops"
+	"github.com/sayden/counters/input"
+	"github.com/sayden/counters/vassal"
 )
 
-// GetVassalDataForCounters returns the Vassal module data for the counters
-func GetVassalDataForCounters(t *counters.CounterTemplate, xmlFilepath string) ([]byte, error) {
-	var g counters.VassalGameModule
-	err := fsops.ReadMarkupFile(xmlFilepath, &g)
+func VassalModule(outputPath string, templatesFiles []string) error {
+	os.MkdirAll(outputPath, 0755)
+	destDir, err := os.MkdirTemp(outputPath, "vassal")
 	if err != nil {
-		return nil, errors.Wrap(err, "error trying to decode content")
+		return errors.Wrap(err, "error creating temporary directory")
+	}
+	defer os.RemoveAll(destDir)
+
+	os.MkdirAll(path.Join(destDir, "images"), 0755)
+
+	listOfListWidgets := make([]counters.ListWidget, 0, 3)
+
+	moduleName := ""
+	mapFilename := ""
+	hexGrid := counters.HexGrid{
+		Color:        "204,0,204",
+		CornersLegal: "false",
+		DotsVisible:  "false",
+		EdgesLegal:   "false",
+		SnapTo:       "true",
+		Visible:      "false",
 	}
 
-	// Piece palette definition
-	tw := counters.TabWidget{
-		EntryName:  "Forces",
-		ListWidget: make([]counters.ListWidget, 0),
-	}
+	// create all the counters in their respective folders
+	for _, inputPath := range templatesFiles {
+		if err := counters.ValidateSchemaAtPath[counters.CounterTemplate](inputPath); err != nil {
+			return errors.Wrap(err, "schema validation failed during jsonToAsset")
+		}
 
-	forces := make(map[string]counters.ListWidget)
-	forces["Markers"] = counters.ListWidget{
-		EntryName: "Markers",
-		PieceSlot: make([]counters.PieceSlot, 0),
-		Scale:     "1.0",
-		Height:    "215",
-		Width:     "562",
-		Divider:   "194",
-	}
-
-	// originalPieceTemplate := `+/null/prototype;Basic Pieces	emb2;Flip1;128;A;;128;;;128;;;;1;false;0;0;1 TD X HQ.png;Back;true;Flip Layer (Name);;;false;;1;1;false;;;;Description;1.0;;true\	piece;;;1 TD Unit.png;1 TD Unit/	-1\	null;0;0;;1;ppScale;1.0`
-
-	xmlTemplateString := `+/null/prototype;BasicPrototype	piece;;;{{ .Filename }};{{ .PieceName}}/	null;0;0;{{ .Id }};0`
-	xmlTemplate, err := template.New("xml").Parse(xmlTemplateString)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not parse template string")
-	}
-
-	// Read special files from images folder to statically load them into the module as pieces
-	// (terrain, -1, -2 markers, Disorganized, Spent, OOS, etc,)
-	files, err := readFiles(counters.BASE_FOLDER + "/images")
-	if err != nil {
-		return nil, errors.Wrap(err, "could not read files")
-	}
-
-	gpid := 200
-	id := 200
-
-	// Load markers into the module
-	for _, file := range files {
-		buf := bytes.NewBufferString("")
-		err = xmlTemplate.ExecuteTemplate(buf, "xml", counters.TemplateData{
-			Filename:  file,
-			PieceName: file,
-			Id:        fmt.Sprintf("%d", id),
-		})
+		counterTemplate, err := input.ReadCounterTemplate(inputPath)
 		if err != nil {
-			return nil, errors.Wrap(err, "error trying to write Vassal xml file using templates")
-		}
-		id++
-
-		piece := counters.PieceSlot{
-			EntryName: file,
-			Gpid:      fmt.Sprintf("%d", gpid),
-			Height:    t.Height,
-			Width:     t.Width,
-			Data:      buf.String(),
+			return errors.Wrap(err, "error reading counter template")
 		}
 
-		temp := forces["Markers"]
-		temp.PieceSlot = append(forces["Markers"].PieceSlot, piece)
-		forces["Markers"] = temp
-
-		gpid++
-	}
-
-	filenamesInUse := new(sync.Map)
-
-	// Load counters into the module
-	for _, counter := range t.Counters {
-		buf := bytes.NewBufferString("")
-		if err = xmlTemplate.ExecuteTemplate(buf, "xml",
-			counters.TemplateData{
-				Filename:  counter.GetCounterFilename(t.PositionNumberForFilename, filenamesInUse),
-				PieceName: counter.GetCounterFilename(t.PositionNumberForFilename, filenamesInUse),
-				Id:        fmt.Sprintf("%d", id),
-			},
-		); err != nil {
-			return nil, errors.Wrap(err, "error trying to write Vassal xml file using templates")
-		}
-		id++
-
-		piece := counters.PieceSlot{
-			EntryName: counter.GetTextInPosition(t.PositionNumberForFilename),
-			Gpid:      fmt.Sprintf("%d", gpid),
-			Height:    t.Height,
-			Width:     t.Width,
-			Data:      buf.String(),
+		newTemplate, err := counterTemplate.ParsePrototype()
+		if err != nil {
+			return errors.Wrap(err, "error parsing prototyped template")
 		}
 
-		if _, ok := forces[counter.Extra.Side]; !ok {
-			forces[counter.Extra.Side] = counters.ListWidget{
-				EntryName: counter.Extra.Side,
-				PieceSlot: make([]counters.PieceSlot, 0),
-				Scale:     "1.0",
-				Height:    "215",
-				Width:     "562",
-				Divider:   "194",
+		newTemplate.OutputFolder = path.Join(destDir, "images")
+		moduleName = newTemplate.Vassal.ModuleName
+		mapFilename = newTemplate.Vassal.MapFile
+
+		if newTemplate.Vassal.HexGrid != nil {
+			hexGrid = *newTemplate.Vassal.HexGrid
+			hexGrid.Color = "204,0,204"
+			hexGrid.CornersLegal = "false"
+			hexGrid.DotsVisible = "false"
+			hexGrid.EdgesLegal = "false"
+			hexGrid.SnapTo = "true"
+			hexGrid.Visible = "false"
+		}
+
+		CountersToPNG(newTemplate)
+
+		// get an array of the vassal pieces
+		list := counters.ListWidget{
+			EntryName: newTemplate.Vassal.SideName,
+			PieceSlot: make([]counters.PieceSlot, 0, len(newTemplate.Counters)),
+			Scale:     "1.0",
+			Height:    "215",
+			Width:     "562",
+			Divider:   "194",
+		}
+
+		for i, counter := range newTemplate.Counters {
+			if counter.VassalPiece != nil {
+				list.PieceSlot = append(list.PieceSlot, *newTemplate.Counters[i].VassalPiece)
 			}
 		}
 
-		temp := forces[counter.Extra.Side]
-		temp.PieceSlot = append(forces[counter.Extra.Side].PieceSlot, piece)
-		forces[counter.Extra.Side] = temp
-
-		gpid++
+		listOfListWidgets = append(listOfListWidgets, list)
 	}
 
-	tw.ListWidget = append(tw.ListWidget, mapToArray[counters.ListWidget](forces)...)
-	g.PieceWindow.TabWidget = tw
-
-	byt, err := xml.MarshalIndent(g, "", "  ")
-	if err != nil {
-		return nil, errors.Wrap(err, "could not marshal the final game module data")
+	// Copy map file to the images folder
+	if err = fsops.CopyFile(mapFilename, path.Join(destDir, "images", path.Base(mapFilename))); err != nil {
+		return errors.Wrap(err, "error copying map file")
 	}
 
-	return byt, nil
+	return writeXMLFiles(destDir, moduleName, mapFilename, listOfListWidgets, outputPath, &hexGrid)
 }
 
-func readFiles(path string) ([]string, error) {
-	files, err := os.ReadDir(path)
+func writeXMLFiles(dir, moduleName, mapFilename string, listOfWidgets []counters.ListWidget, outputPath string, hexGrid *counters.HexGrid) error {
+	// buildFile.xml
+	buildFile := vassal.GetBuildFile()
+
+	buildFile.Name = moduleName
+	buildFile.Map.BoardPicker.Board.Image = path.Base(mapFilename)
+	buildFile.Map.BoardPicker.Board.Name = moduleName
+	if hexGrid != nil {
+		buildFile.Map.BoardPicker.Board.HexGrid = *hexGrid
+	}
+	buildFile.PieceWindow.TabWidget.ListWidget = listOfWidgets
+
+	f, err := os.Create(path.Join(dir, "buildFile.xml"))
 	if err != nil {
-		return nil, err
+		return fmt.Errorf("error creating buildFile.xml: %w", err)
+	}
+	defer f.Close()
+
+	err = xml.NewEncoder(f).Encode(buildFile)
+	if err != nil {
+		return fmt.Errorf("error encoding buildFile.xml: %w", err)
 	}
 
-	filenames := make([]string, 0)
-
-	for _, file := range files {
-		if !file.IsDir() {
-			if file.Name()[0] == '_' {
-				filenames = append(filenames, file.Name())
-			}
-		}
+	// moduledata
+	moduleData := vassal.GetModuleData()
+	moduleData.Name = moduleName
+	f2, err := os.Create(path.Join(dir, "moduledata"))
+	if err != nil {
+		return fmt.Errorf("error creating buildFile.xml: %w", err)
 	}
+	defer f2.Close()
+	xml.NewEncoder(f2).Encode(moduleData)
 
-	return filenames, nil
-}
-
-func mapToArray[T any](m map[string]T) []T {
-	temp := make([]T, len(m))
-
-	i := 0
-	for _, item := range m {
-		temp[i] = item
-
-		i++
-	}
-
-	return temp
+	// Compress
+	return WriteZipFileWithFolderContent(path.Join("/tmp/test", moduleName+".vmod"), dir)
 }

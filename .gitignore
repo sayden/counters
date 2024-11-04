@@ -34,3 +34,5 @@ server/static/img.png
 server/tmp
 
 .vscode
+
+vassal_modules

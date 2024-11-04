@@ -58,10 +58,7 @@ func (c *Card) ToCanvas(template *CardsTemplate) (*gg.Context, error) {
 		isLastAreaOfCard := areaIndex != numberOfAreas
 		c.Areas[areaIndex].Height = int(math.Floor(areasHeights[areaIndex]))
 
-		// area.Width = (template.Width) - int(template.Margins*2)
-		// areaCanvas, err := c.processAreav2(template, &area, c.Areas[areaIndex].Height, isLastAreaOfCard)
 		areaCanvas, err := c.ProcessAreav2(&areaCounter, template, int(math.Floor(areasHeights[areaIndex])), isLastAreaOfCard)
-		// areaCanvas, err := area.Canvas(false)
 		if err != nil {
 			return nil, err
 		}

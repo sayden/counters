@@ -9,10 +9,19 @@ import (
 	"text/template"
 
 	"github.com/fogleman/gg"
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/thehivecorporation/log"
 )
+
+func init() {
+	var err error
+	pieceSlotTemplate, err = template.New("piece_text").Parse(Template_NewVassalPiece)
+	if err != nil {
+		panic(fmt.Errorf("could not parse template string %w", err))
+	}
+}
+
+var pieceSlotTemplate *template.Template
 
 // Counter is POGO-like holder for data needed for other parts to fill and draw
 // a counter in a container
@@ -72,7 +81,7 @@ func (c *Counter) GetTextInPosition(i int) string {
 // filenumber: CounterTemplate.PositionNumberForFilename. So it will always be fixed number
 // position: The position of the text in the counter (0-16)
 // suffix: A suffix on the file. Constant
-func (c *Counter) GetCounterFilename(position int, filenamesInUse *sync.Map) string {
+func (c *Counter) GetCounterFilename(sideName string, position int, filenamesInUse *sync.Map) string {
 	if c.Filename != "" {
 		return c.Filename
 	}
@@ -91,7 +100,6 @@ func (c *Counter) GetCounterFilename(position int, filenamesInUse *sync.Map) str
 		// This way, the positional based name will always be the first part of the filename
 		// while the manual title will come later. This is useful when using prototypes so that
 		// counters with the same positional name are close together in the destination folder
-		// by "formation" (belonging) instead of by "use" (title)
 		name = ""
 
 		if c.Extra.Side != "" {
@@ -132,6 +140,12 @@ func (c *Counter) GetCounterFilename(position int, filenamesInUse *sync.Map) str
 	res = strings.TrimSpace(res)
 
 	filenamesInUse.Store(res, true)
+	if c.Extra == nil {
+		c.Extra = &Extra{}
+	}
+	if sideName != "" {
+		res = sideName + "_" + res
+	}
 	c.Extra.Title = res
 
 	res += ".png"
@@ -230,35 +244,23 @@ func (c *Counter) ToVassal(sideName string) error {
 		return nil
 	}
 
-	pieceTemplate := "+/null/prototype;Basic Pieces	emb2;" +
-		"{{ .FlipName }};128;A;;128;;;128;;;;1;false;0;0;" +
-		"{{ .BackFilename }};Back;true;Flip;;;false;;1;1;false;;;;Description;1.0;;true\\	piece;;;" +
-		"{{ .FrontFilename }};" +
-		"{{ .PieceName }}/	-1\\	null;0;0;;1;ppScale;1.0"
-
-	xmlTemplate, err := template.New("xml").Parse(pieceTemplate)
-	if err != nil {
-		return fmt.Errorf("could not parse template string %w", err)
-	}
-
-	uuid := uuid.New().String()
 	buf := bytes.NewBufferString("")
 	pieceTemp := PieceTemplateData{
 		FrontFilename: c.Filename,
 		BackFilename:  c.Extra.Title + "_back.png",
 		FlipName:      sideName,
 		PieceName:     c.Filename,
-		Id:            uuid,
+		Id:            c.Extra.Title,
 	}
 
-	err = xmlTemplate.ExecuteTemplate(buf, "xml", pieceTemp)
+	err := pieceSlotTemplate.ExecuteTemplate(buf, "piece_text", pieceTemp)
 	if err != nil {
 		return fmt.Errorf("could not execute template %w", err)
 	}
 
 	piece := PieceSlot{
 		EntryName: c.Filename,
-		Gpid:      uuid,
+		Gpid:      c.Extra.Title,
 		Height:    c.Height,
 		Width:     c.Width,
 		Data:      buf.String(),

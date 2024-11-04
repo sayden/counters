@@ -52,9 +52,9 @@ func (p *CounterPrototype) ToCounters(filenamesInUse *sync.Map, sideName string,
 
 		var counterFilename string
 		if p.Extra != nil && p.Extra.TitlePosition != nil {
-			counterFilename = newCounter.GetCounterFilename(*p.Extra.TitlePosition, filenamesInUse)
+			counterFilename = newCounter.GetCounterFilename(sideName, *p.Extra.TitlePosition, filenamesInUse)
 		} else {
-			counterFilename = newCounter.GetCounterFilename(positionNumberForFilename, filenamesInUse)
+			counterFilename = newCounter.GetCounterFilename(sideName, positionNumberForFilename, filenamesInUse)
 		}
 		newCounter.Filename = counterFilename
 
@@ -74,7 +74,7 @@ func (p *CounterPrototype) ToCounters(filenamesInUse *sync.Map, sideName string,
 			if sideName != "" {
 				err = backCounter.ToVassal(sideName)
 				if err != nil {
-					log.Warn("could not create vassal piece")
+					log.Warn("could not create vassal piece", err)
 				}
 			}
 
@@ -84,9 +84,10 @@ func (p *CounterPrototype) ToCounters(filenamesInUse *sync.Map, sideName string,
 		if sideName != "" {
 			err = newCounter.ToVassal(sideName)
 			if err != nil {
-				log.Warn("could not create vassal piece")
+				log.Warn("could not create vassal piece", err)
 			}
 		}
+
 		cts = append(cts, newCounter)
 	}
 

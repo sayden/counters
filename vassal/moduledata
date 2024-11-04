@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<data version="1">
+  <version>0.1</version>
+  <extra1/>
+  <extra2/>
+  <VassalVersion>3.7.12</VassalVersion>
+  <dateSaved>1730245172539</dateSaved>
+  <description/>
+  <name>{{ .Name }}</name>
+</data>

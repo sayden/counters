@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/charmbracelet/log"
 	"github.com/pkg/errors"
-	"github.com/thehivecorporation/log"
 )
 
 func ReadMarkupFile(markupFilepath string, destination interface{}) error {
@@ -39,7 +40,7 @@ func ReadMarkupFile(markupFilepath string, destination interface{}) error {
 func FilenameExistsInFolder(filename, folder string) bool {
 	fs, err := os.ReadDir(folder)
 	if err != nil {
-		log.WithError(err).Fatal("could not read images folder")
+		log.Fatal("could not read images folder", "error", err)
 	}
 
 	for _, file := range fs {
@@ -82,4 +83,32 @@ func GetFilenamesForPath(path string) ([]string, error) {
 	}
 
 	return images, nil
+}
+
+// CopyFile copies a file from src to dst. If dst does not exist, it will be created.
+func CopyFile(src, dst string) error {
+	fullpath, err := filepath.Abs(src)
+	if err != nil {
+		return err
+	}
+
+	sourceFile, err := os.Open(fullpath)
+	if err != nil {
+		log.Error("Copying file", "src", fullpath, "dst", dst)
+		return err
+	}
+	defer sourceFile.Close()
+
+	destinationFile, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer destinationFile.Close()
+
+	_, err = io.Copy(destinationFile, sourceFile)
+	if err != nil {
+		return err
+	}
+
+	return destinationFile.Sync()
 }

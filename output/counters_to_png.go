@@ -64,6 +64,24 @@ func newGlobalState(template *counters.CounterTemplate) *globalState {
 
 // CountersToPNG generates PNG images based on the provided CounterTemplate.
 func CountersToPNG(template *counters.CounterTemplate) {
+	// Request body contains the current working directory to use
+	// This is relevant because we need to use relavite paths
+	if template.WorkingDirectory != "" {
+		dir, err := os.Getwd()
+		if err != nil {
+			log.Error("error trying to get current working directory", err)
+			return
+		}
+		defer os.Chdir(dir)
+
+		log.Info("Changing working directory", "chdir", os.ExpandEnv(template.WorkingDirectory))
+		if err = os.Chdir(os.ExpandEnv(template.WorkingDirectory)); err != nil {
+			log.Error("error trying to change working directory", err)
+			return
+		}
+	} else {
+		log.Info("No working directory provided, using current working directory")
+	}
 	_ = os.MkdirAll(template.OutputFolder, 0750)
 
 	gs := newGlobalState(template)
@@ -83,7 +101,7 @@ func CountersToPNG(template *counters.CounterTemplate) {
 	defer pbar.Quit()
 
 	ch := make(chan *counters.Counter, 50)
-	for i := 0; i < 50; i++ {
+	for i := 0; i < 100; i++ {
 		go generateCounterToFile(ch, template.DrawGuides, gs, pbar, template.Vassal.SideName)
 	}
 
@@ -113,7 +131,7 @@ func generateCounterToFile(ch <-chan *counters.Counter, drawGuides bool, gs *glo
 
 		iw := imageWriter{canvas: counterCanvas, template: gs.template}
 		if err = iw.createFile(counter, gs); err != nil {
-			log.Error("error trying to write counter to file", err)
+			log.Error(err)
 			pbar.Send(1)
 			continue
 		}
@@ -139,7 +157,8 @@ func (iw *imageWriter) createFile(counter *counters.Counter, gs *globalState) er
 		filepath := path.Join(iw.template.OutputFolder, counter.Filename)
 
 		if err := iw.canvas.SavePNG(filepath); err != nil {
-			return fmt.Errorf("could not save PNG file: %w", err)
+			return fmt.Errorf("could not save PNG file '%s' (filename '%s'): %w", filepath,
+				counter.Filename, err)
 		}
 
 		gs.incrFilenumber()

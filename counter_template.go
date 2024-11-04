@@ -2,7 +2,6 @@ package counters
 
 import (
 	"encoding/json"
-	"os"
 	"sort"
 	"sync"
 
@@ -33,6 +32,13 @@ type CounterTemplate struct {
 	Prototypes map[string]CounterPrototype `json:"prototypes,omitempty"`
 }
 
+type VassalCounterTemplateSettings struct {
+	SideName   string   `json:"side_name,omitempty"`
+	ModuleName string   `json:"module_name,omitempty"`
+	MapFile    string   `json:"map_file,omitempty"`
+	HexGrid    *HexGrid `json:"hex_grid,omitempty"`
+}
+
 // ParseCounterTemplate reads a JSON file and parses it into a CounterTemplate after applying it some default settings (if not
 // present in the file)
 func ParseCounterTemplate(byt []byte, filenamesInUse *sync.Map) (t *CounterTemplate, err error) {
@@ -51,14 +57,6 @@ func ParseCounterTemplate(byt []byte, filenamesInUse *sync.Map) (t *CounterTempl
 	}
 
 	t.ApplyCounterWaterfallSettings()
-
-	// Request body contains the current working directory to use
-	// This is relevant because we need to use relavite paths
-	if t.WorkingDirectory != "" {
-		if err = os.Chdir(os.ExpandEnv(t.WorkingDirectory)); err != nil {
-			return nil, err
-		}
-	}
 
 	return
 }
@@ -131,7 +129,7 @@ func (t *CounterTemplate) ParsePrototype() (*CounterTemplate, error) {
 	// JSON counters to Counters
 	newTemplate, err := t.ExpandPrototypeCounterTemplate(filenamesInUse)
 	if err != nil {
-		return nil, errors.Wrap(err, "error trying to convert a counter template into another counter template")
+		return nil, errors.Wrap(err, "error trying to expand prototype template")
 	}
 
 	byt, err := json.Marshal(newTemplate)
@@ -174,7 +172,20 @@ func (t *CounterTemplate) ExpandPrototypeCounterTemplate(filenamesInUse *sync.Ma
 		}
 
 		t.Prototypes = nil
-		return t, nil
+	}
+
+	if t.Counters != nil {
+		for i, counter := range t.Counters {
+			if counter.Filename == "" {
+				var counterFilename string
+				if counter.Extra != nil && counter.Extra.TitlePosition != nil {
+					counterFilename = counter.GetCounterFilename(t.Vassal.SideName, *counter.Extra.TitlePosition, filenamesInUse)
+				} else {
+					counterFilename = counter.GetCounterFilename(t.Vassal.SideName, t.PositionNumberForFilename, filenamesInUse)
+				}
+				t.Counters[i].Filename = counterFilename
+			}
+		}
 	}
 
 	return t, nil

@@ -3,24 +3,27 @@ package output
 import (
 	"archive/zip"
 	"fmt"
-	"github.com/thehivecorporation/log"
 	"os"
+
+	"github.com/charmbracelet/log"
 )
 
-func WriteZipFileWithFolderContent(destinationZipFilepath, inputFolder string) error {
+func WriteZipFileWithFolderContent(destinationZipfilePath, inputFolder string) error {
 	// Create the zip/vmod file
-	outFile, err := os.Create(destinationZipFilepath)
+	outFile, err := os.Create(destinationZipfilePath)
 	if err != nil {
-		log.WithError(err).Fatal("could not create destination vassal file")
+		log.Fatal("could not create destination vassal file", "error", err)
 	}
 	defer outFile.Close()
 
 	z := zip.NewWriter(outFile)
 	defer func() {
 		if err = z.Close(); err != nil {
-			log.WithError(err).Error("zip file had a problem when closing")
+			log.Error("zip file had a problem when closing", "error", err)
 		}
 	}()
+
+	log.Info("Using", "basepath", inputFolder, "dest_file", destinationZipfilePath)
 
 	return addFiles(z, inputFolder, "")
 }

@@ -156,6 +156,9 @@ func generateCounter(byt []byte) (response, error) {
 	if err != nil {
 		return nil, err
 	}
+	cwd, _ := os.Getwd()
+	defer os.Chdir(cwd)
+	os.Chdir(os.ExpandEnv(tempTemplate.WorkingDirectory))
 
 	newTemplate, err := tempTemplate.ParsePrototype()
 	if err != nil {
@@ -178,7 +181,7 @@ func generateCounter(byt []byte) (response, error) {
 
 		counterImage := counterImage{
 			CounterImage: "data:image/png;base64," + buf.String(),
-			Id:           counter.GetCounterFilename(i, filenamesInUse),
+			Id:           counter.GetCounterFilename("", i, filenamesInUse),
 		}
 
 		i++

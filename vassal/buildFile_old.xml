@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<VASSAL.build.GameModule ModuleOther1="" ModuleOther2="" VassalVersion="3.7.12" description="" name="{{.Name}}" nextPieceSlotId="3546" version="0.1">
+    <VASSAL.build.module.BasicCommandEncoder/>
+    <VASSAL.build.module.Documentation>
+        <VASSAL.build.module.documentation.AboutScreen fileName="/images/Splash.png" title="About Module"/>
+        <VASSAL.build.module.documentation.HelpFile fileName="/help/Intro.html" fileType="resource" title="Vassal Quick Start" vassalDoc="vassal"/>
+    </VASSAL.build.module.Documentation>
+    <VASSAL.build.module.PlayerRoster buttonIcon="" buttonKeyStroke="" buttonText="Retire" buttonToolTip="Switch sides, become an observer, or allow another player to take your side in this game"/>
+    <VASSAL.build.module.GlobalOptions autoReport="Always" chatterHTMLSupport="Never" disablePieceIndexing="false" hotKeysOnClosedWindows="Never" inventoryForAll="Always" nonOwnerUnmaskable="Never" playerIdFormat="$PlayerName$" promptString="Opponents can unmask my pieces" purgeBlankPropertyPrompts="true" sendToLocationMoveTrails="Never" storeLeadingZeroIntegersAsStrings="false">
+        <option name="newHotKey">87,520</option>
+        <option name="endHotKey">87,585</option>
+        <option name="stepIcon">/images/StepForward16.gif</option>
+        <option name="stepHotKey">34,0</option>
+        <option name="undoIcon">/images/Undo16.gif</option>
+        <option name="undoHotKey"/>
+        <option name="serverControlsIcon">/images/connect.gif</option>
+        <option name="serverControlsHotKey">83,520</option>
+        <option name="debugControlsIcon"/>
+        <option name="debugControlsHotKey"/>
+        <option name="scenarioPropertiesIcon"/>
+        <option name="scenarioPropertiesHotKey"/>
+    </VASSAL.build.module.GlobalOptions>
+    <VASSAL.build.module.Chatter/>
+    <VASSAL.build.module.KeyNamer/>
+    <VASSAL.build.module.gamepieceimage.GamePieceImageDefinitions>
+        <VASSAL.build.module.gamepieceimage.ColorManager/>
+        <VASSAL.build.module.gamepieceimage.FontManager>
+            <VASSAL.build.module.gamepieceimage.FontStyle name="Default" style="Dialog,0,12,false"/>
+        </VASSAL.build.module.gamepieceimage.FontManager>
+        <VASSAL.build.module.gamepieceimage.GamePieceLayoutsContainer/>
+    </VASSAL.build.module.gamepieceimage.GamePieceImageDefinitions>
+    <VASSAL.build.module.DiceButton addToTotal="0" canDisable="false" disabledIcon="" hideWhenDisabled="false" hotkey="" icon="/images/die.gif" keepCount="1" keepDice="false" keepOption="&gt;" lockAdd="false" lockDice="false" lockPlus="false" lockSides="false" nDice="2" nSides="6" name="2d6" plus="0" prompt="false" propertyGate="" reportFormat="** $name$ = $result$ *** &amp;lt;$PlayerName$&amp;gt;" reportTotal="false" sortDice="false" text="2d6" tooltip="2d6"/>
+    <VASSAL.build.module.DiceButton addToTotal="0" canDisable="false" disabledIcon="" hideWhenDisabled="false" hotkey="" icon="/images/die.gif" keepCount="1" keepDice="false" keepOption="&gt;" lockAdd="false" lockDice="false" lockPlus="false" lockSides="false" nDice="1" nSides="10" name="1d10" plus="0" prompt="false" propertyGate="" reportFormat="** $name$ = $result$ *** &amp;lt;$PlayerName$&amp;gt;" reportTotal="false" sortDice="false" text="1d10" tooltip="1d10"/>
+    <VASSAL.build.module.properties.GlobalProperties/>
+    <VASSAL.build.module.Map allowMultiple="false" backgroundcolor="255,255,255" buttonName="Activation Display" changeFormat="$message$" color="0,0,0" createFormat="$pieceName$ created in $location$ *" edgeHeight="0" edgeWidth="0" hideKey="" hotkey="" icon="/images/map.gif" launch="true" mapName="Activation Display" markMoved="Never" markUnmovedHotkey="" markUnmovedIcon="/images/unmoved.gif" markUnmovedReport="" markUnmovedText="" markUnmovedTooltip="Mark all pieces on this map as not moved" moveKey="" moveToFormat="$pieceName$ moves $previousLocation$ &amp;rarr; $location$ *" moveWithinFormat="$pieceName$ moves $previousLocation$ &amp;rarr; $location$ *" onlyReportChangedLocation="false" showKey="" thickness="3">
+        <VASSAL.build.module.map.BoardPicker addColumnText="Add column" addRowText="Add row" boardPrompt="Select board" slotHeight="125" slotScale="0.2" slotWidth="350" title="Choose Boards">
+            <VASSAL.build.module.map.boardPicker.Board image="bg_chit.png" name="Board" reversible="false">
+                <VASSAL.build.module.map.boardPicker.board.ZonedGrid>
+                    <VASSAL.build.module.map.boardPicker.board.mapgrid.ZonedGridHighlighter/>
+                    <VASSAL.build.module.map.boardPicker.board.mapgrid.Zone highlightProperty="" locationFormat="$name$" name="" path="47,46;177,46;177,177;47,177" useHighlight="false" useParentGrid="false"/>
+                </VASSAL.build.module.map.boardPicker.board.ZonedGrid>
+            </VASSAL.build.module.map.boardPicker.Board>
+        </VASSAL.build.module.map.BoardPicker>
+        <VASSAL.build.module.map.StackMetrics bottom="40,0" disabled="false" down="37,0" exSepX="6" exSepY="18" top="38,0" unexSepX="2" unexSepY="4" up="39,0"/>
+        <VASSAL.build.module.map.ForwardToKeyBuffer/>
+        <VASSAL.build.module.map.Scroller/>
+        <VASSAL.build.module.map.ForwardToChatter/>
+        <VASSAL.build.module.map.MenuDisplayer/>
+        <VASSAL.build.module.map.MapCenterer/>
+        <VASSAL.build.module.map.StackExpander/>
+        <VASSAL.build.module.map.PieceMover/>
+        <VASSAL.build.module.map.KeyBufferer/>
+        <VASSAL.build.module.map.ImageSaver buttonText="" canDisable="false" disabledIcon="" hideWhenDisabled="false" hotkey="" icon="/images/camera.gif" propertyGate="" tooltip="Save map as PNG image"/>
+        <VASSAL.build.module.map.CounterDetailViewer bgColor="" borderColor="0,0,0" borderInnerThickness="2" borderThickness="2" borderWidth="0" centerAll="false" centerPiecesVertically="false" centerText="false" combineCounterSummary="false" counterReportFormat="" delay="700" description="" display="from top-most layer only" emptyHexReportForma="$LocationName$" enableHTML="false" extraTextPadding="0" fgColor="0,0,0" fontSize="9" graphicsZoom="1.0" hotkey="32,130" layerList="" minDisplayPieces="2" onlyShowFirstSummary="false" propertyFilter="" showDeck="false" showDeckDepth="1" showDeckMasked="false" showMoveSelectde="false" showNoStack="false" showNonMovable="false" showOnlyTopOfStack="false" showOverlap="false" showTerrainBeneath="never" showTerrainHeight="150" showTerrainSnappy="true" showTerrainText="$LocationName$" showTerrainWidth="150" showTerrainZoom="1.0" showgraph="true" showgraphsingle="false" showtext="false" showtextsingle="false" stopAfterShowing="false" stretchWidthPieces="false" stretchWidthSummary="false" summaryReportFormat="$LocationName$" unrotatePieces="false" version="4" verticalBottomText="10" verticalOffset="0" verticalTopText="5" zoomlevel="1.0"/>
+        <VASSAL.build.module.map.Flare circleColor="255,0,0" circleScale="true" circleSize="100" flareKey="keyAlt" flareName="Map Flare" flarePulses="6" flarePulsesPerSec="3" reportFormat=""/>
+        <VASSAL.build.module.map.Zoomer inButtonText="" inIconName="/images/zoomIn.gif" inTooltip="Zoom in" outButtonText="" outIconName="/images/zoomOut.gif" outTooltip="Zoom out" pickButtonText="" pickIconName="/images/zoom.png" pickTooltip="Select Zoom" zoomInKey="" zoomLevels="0.2,0.25,0.333,0.4,0.5,0.555,0.625,0.75,1.0,1.25,1.6" zoomOutKey="" zoomPickKey="" zoomStart="3"/>
+        <VASSAL.build.module.properties.GlobalProperties/>
+        <VASSAL.build.module.map.SelectionHighlighters/>
+        <VASSAL.build.module.map.HighlightLastMoved color="255,0,0" enabled="true" thickness="2"/>
+        <VASSAL.build.module.map.DrawPile allowMultiple="false" allowSelect="false" canSave="false" color="0,0,0" countExpressions="" deckOwners="" deckRestrictAccess="false" draw="false" drawFaceUp="true" drawMultipleMessage="Draw multiple cards" drawSpecificMessage="Draw specific cards" emptyHotkey="" expressionCounting="false" faceDown="Always" faceDownFormat="" faceDownHotkey="" faceDownMessage="Face down" faceFlipHotkey="" faceUpHotkey="" faceUpMessage="Face up" faceUpReportFormat="" height="80" hotkeyOnEmpty="false" loadHotkey="" loadMessage="Load Deck" loadReportFormat="Deck Loaded" maxStack="10" owningBoard="Board" reshufflable="false" reshuffleCommand="" reshuffleHotkey="" reshuffleMessage="" reshuffleTarget="" restrictExpression="" restrictOption="false" reverseCommand="Reverse" reverseFormat="" reverseHotkey="" reversible="false" saveHotkey="" saveMessage="Save Deck" saveReportFormat="Deck Saved" selectDisplayProperty="$BasicName$" selectSortProperty="" shuffle="Always" shuffleCommand="Shuffle" shuffleFormat="" shuffleHotkey="" width="80" x="112" y="109"/>
+    </VASSAL.build.module.Map>
+    <VASSAL.build.module.properties.GlobalTranslatableMessages/>
+    <VASSAL.build.module.PrototypesContainer>
+        <VASSAL.build.module.PrototypeDefinition description="Units with basic abilities like infantry or tanks" name="Basic Pieces">+/null/cmt;	markmoved;moved.gif;0;0;Toggle whether piece marked as moved;77,130;;false;Mark piece as moved;;Mark piece as unmoved;\	rotate;6;93,130;91,130;Rotate CW;Rotate CCW;;;;;;;;true\\	AreaOfEffect;255,255,51;30;10;false;Show area1;57345,0,Show area2;;true;;Range;Range;Show area3;57347,0,Show area4;Show area5;57349,0,Show area6;true\\\	delete;Delete;68,130;\\\\	clone;Clone;67,130;\\\\\	piece;;;;/	false\	0\\	false\\\	\\\\	\\\\\	null;36;32;;0</VASSAL.build.module.PrototypeDefinition>
+    </VASSAL.build.module.PrototypesContainer>
+    <VASSAL.build.module.PieceWindow defaultWidth="0" hidden="false" hotkey="" icon="" scale="1.0" text="Pieces" tooltip="Show/Hide the null window">
+        <VASSAL.build.widget.TabWidget description="" entryName="Counters">
+            <VASSAL.build.widget.PanelWidget entryName="EntryName" fixed="false" nColumns="3" scale="1.0" vert="false"></VASSAL.build.widget.PanelWidget>
+        </VASSAL.build.widget.TabWidget>
+    </VASSAL.build.module.PieceWindow>
+    <VASSAL.i18n.Language/>
+</VASSAL.build.GameModule>
+

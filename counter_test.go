@@ -35,7 +35,7 @@ func TestGetCounterFilename(t *testing.T) {
 			counter: Counter{
 				Texts: []Text{
 					{Settings: Settings{Position: 0}, String: "Test"}},
-				Extra: &Extra{Title: stringP("ExtraTitle")},
+				Extra: &Extra{Title: "ExtraTitle"},
 			},
 			position:       0,
 			suffix:         "suffix",
@@ -75,7 +75,7 @@ func TestGetCounterFilename(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.counter.GetCounterFilename(tt.position, tt.suffix, tt.filenumber, tt.filenamesInUse)
+			got := tt.counter.GetCounterFilename("side", tt.position, tt.filenamesInUse)
 			if got != tt.expected {
 				t.Errorf("GetCounterFilename() = '%v', want '%v'", got, tt.expected)
 			}
