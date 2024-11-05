@@ -83,7 +83,7 @@ func TestCardTemplate(t *testing.T) {
 				t.FailNow()
 			}
 			defer os.Remove(f.Name())
-			byt, err := os.ReadFile(fmt.Sprintf(template.OutputPath, 1))
+			gotBytes, err := os.ReadFile(fmt.Sprintf(template.OutputPath, 1))
 			if assert.NoError(t, err) {
 				expectedFile, err := os.Open("../testdata/card_template_01.png")
 				if assert.NoError(t, err) {
@@ -91,7 +91,7 @@ func TestCardTemplate(t *testing.T) {
 
 					expectedBytes, err := io.ReadAll(expectedFile)
 					if assert.NoError(t, err) {
-						assert.Equal(t, expectedBytes, byt)
+						assert.Equal(t, expectedBytes, gotBytes)
 					}
 				}
 			}

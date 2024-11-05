@@ -14,6 +14,7 @@
   "stroke_color": "black",
   "image_scaling": "fitWidth",
   "font_path": "../assets/BebasNeue-Regular.ttf",
+  "position_number_for_filename": 3,
   "prototypes": {
     "both": {
       "text_prototypes": [
@@ -40,6 +41,7 @@
       }
     },
     "only_image": {
+      "extra": { "title": "only_image" },
       "texts": [
         { "position": 3, "string": "image" },
         { "position": 7, "string": "A" }
@@ -52,6 +54,7 @@
       ]
     },
     "only_text": {
+      "extra": { "title": "only_text" },
       "text_prototypes": [
         {
           "position": 11,

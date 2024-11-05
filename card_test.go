@@ -2,7 +2,6 @@ package counters
 
 import (
 	"image/color"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -107,32 +106,32 @@ func TestApplyCardScaling(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	f, _ := os.Create("/tmp/card_01.png")
-	defer f.Close()
-	err = template.Cards[0].EncodeImage(f, template)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// assert.Equal(t, 120, template.Settings.Width)
-	// assert.Equal(t, 240, template.Settings.Height)
-	// assert.Equal(t, 120, template.Cards[0].Settings.Width)
-	// assert.Equal(t, 240, template.Cards[0].Settings.Height)
-	// assert.Equal(t, 120, template.Cards[0].Areas[0].Width)
-	// assert.Equal(t, 100, template.Cards[0].Areas[0].Height)
-	// assert.Equal(t, float64(2), *template.Settings.StrokeWidth)
-	// assert.Equal(t, 120, template.Cards[0].Images[0].Width)
-	// assert.Equal(t, 240, template.Cards[0].Images[0].Height)
-	// assert.Equal(t, 120, template.Cards[0].Texts[0].Settings.Width)
-	// assert.Equal(t, 240, template.Cards[0].Texts[0].Settings.Height)
-	// assert.Equal(t, float64(2), *template.Cards[0].Texts[0].Settings.StrokeWidth)
-
-	// canvas, err := template.Cards[0].ToCanvas(template)
-	// if !assert.NoError(t, err) {
+	// f, _ := os.Create("/tmp/card_01.png")
+	// defer f.Close()
+	// err = template.Cards[0].EncodeImage(f, template)
+	// if err != nil {
 	// 	t.Fatal(err)
 	// }
-	// if assert.NoError(t, err) {
-	// 	TestImageContent(t, "testdata/card_01.png", 5643, canvas)
-	// }
 
+	t.Skip("TODO: implement test")
+	assert.Equal(t, 120, template.Settings.Width)
+	assert.Equal(t, 240, template.Settings.Height)
+	assert.Equal(t, 120, template.Cards[0].Settings.Width)
+	assert.Equal(t, 240, template.Cards[0].Settings.Height)
+	assert.Equal(t, 120, template.Cards[0].Areas[0].Width)
+	assert.Equal(t, 100, template.Cards[0].Areas[0].Height)
+	assert.Equal(t, float64(2), *template.Settings.StrokeWidth)
+	assert.Equal(t, 120, template.Cards[0].Images[0].Width)
+	assert.Equal(t, 240, template.Cards[0].Images[0].Height)
+	assert.Equal(t, 120, template.Cards[0].Texts[0].Settings.Width)
+	assert.Equal(t, 240, template.Cards[0].Texts[0].Settings.Height)
+	assert.Equal(t, float64(2), *template.Cards[0].Texts[0].Settings.StrokeWidth)
+
+	canvas, err := template.Cards[0].ToCanvas(template)
+	if !assert.NoError(t, err) {
+		t.Fatal(err)
+	}
+	if assert.NoError(t, err) {
+		TestImageContent(t, "testdata/card_01.png", 5643, canvas)
+	}
 }

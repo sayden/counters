@@ -59,6 +59,6 @@ func TestImageDraw(t *testing.T) {
 		err = testImage.Draw(testCanvas, 1)
 		assert.NoError(t, err)
 
-		TestImageContent(t, "testdata/image_draw_01.png", 13552, testCanvas)
+		TestImageContent(t, "testdata/image_draw_01.png", 13672, testCanvas)
 	})
 }

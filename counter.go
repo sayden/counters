@@ -132,7 +132,6 @@ func (c *Counter) GetCounterFilename(sideName string, position int, filenamesInU
 	filenumber := 0
 	_, isFound := filenamesInUse.Load(res)
 	if isFound {
-		filenumber = 0
 		for {
 			tempRes := fmt.Sprintf("%s_%04d", res, filenumber)
 			_, isFound = filenamesInUse.Load(tempRes)

@@ -58,7 +58,6 @@ func TestCardTemplate(t *testing.T) {
 	if assert.NoError(t, err) {
 		newTempl, err := ParseCardTemplate(byt)
 		if assert.NoError(t, err) {
-			// TODO
 			canvas, err := newTempl.Canvas(&newTempl.Settings, newTempl.Settings.Width, newTempl.Settings.Height)
 			if assert.NoError(t, err) {
 				assert.NotNil(t, canvas)
