@@ -3,6 +3,8 @@ package counters
 import (
 	"encoding/json"
 	"fmt"
+	"path"
+	"strings"
 	"sync"
 
 	"dario.cat/mergo"
@@ -50,13 +52,7 @@ func (p *CounterPrototype) ToCounters(filenamesInUse *sync.Map, sideName string,
 			return nil, err
 		}
 
-		var counterFilename string
-		if p.Extra != nil && p.Extra.TitlePosition != nil {
-			counterFilename = newCounter.GetCounterFilename(sideName, *p.Extra.TitlePosition, filenamesInUse)
-		} else {
-			counterFilename = newCounter.GetCounterFilename(sideName, positionNumberForFilename, filenamesInUse)
-		}
-		newCounter.Filename = counterFilename
+		newCounter.GetCounterFilename(sideName, positionNumberForFilename, filenamesInUse)
 
 		if p.Back != nil {
 			var tempBackCounter Counter
@@ -67,15 +63,6 @@ func (p *CounterPrototype) ToCounters(filenamesInUse *sync.Map, sideName string,
 			backCounter, err := mergeFrontAndBack(&tempBackCounter, p.Back, i)
 			if err != nil {
 				return nil, err
-			}
-
-			backCounter.Filename = newCounter.Extra.Title + "_back.png"
-
-			if sideName != "" {
-				err = backCounter.ToVassal(sideName)
-				if err != nil {
-					log.Warn("could not create vassal piece", err)
-				}
 			}
 
 			cts = append(cts, backCounter)
@@ -135,7 +122,8 @@ func mergeFrontAndBack(frontCounter *Counter, backPrototype *CounterPrototype, i
 	if err := mergo.Merge(&backCounter, frontCounter); err != nil {
 		return Counter{}, err
 	}
-	backCounter.Extra.Title = frontCounter.Extra.Title + "_back"
+	backCounter.PrettyName = frontCounter.PrettyName + "_back"
+	backCounter.Filename = strings.TrimRight(frontCounter.Filename, path.Ext(frontCounter.Filename)) + "_back.png"
 
 	backCounter.Images = mergeImagesOrTexts(frontCounter.Images, backCounter.Images)
 	backCounter.Texts = mergeImagesOrTexts(frontCounter.Texts, backCounter.Texts)

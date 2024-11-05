@@ -3,20 +3,22 @@ package counters
 import (
 	"bytes"
 	"os"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetCounterFilename(t *testing.T) {
+	filenamesInUse := new(sync.Map)
+
 	tests := []struct {
 		name           string
 		counter        Counter
 		position       int
-		suffix         string
 		filenumber     int
-		filenamesInUse map[string]bool
 		expected       string
+		expectedPretty string
 	}{
 		{
 			name: "Basic case",
@@ -25,10 +27,9 @@ func TestGetCounterFilename(t *testing.T) {
 					{Settings: Settings{Position: 0}, String: "Test"}},
 			},
 			position:       0,
-			suffix:         "suffix",
 			filenumber:     -1,
-			filenamesInUse: map[string]bool{},
-			expected:       "Test suffix.png",
+			expected:       "side_Test.png",
+			expectedPretty: "Test",
 		},
 		{
 			name: "With Extra Title",
@@ -38,10 +39,9 @@ func TestGetCounterFilename(t *testing.T) {
 				Extra: &Extra{Title: "ExtraTitle"},
 			},
 			position:       0,
-			suffix:         "suffix",
 			filenumber:     -1,
-			filenamesInUse: map[string]bool{},
-			expected:       "Test ExtraTitle suffix.png",
+			expected:       "side_Test ExtraTitle.png",
+			expectedPretty: "Test ExtraTitle",
 		},
 		{
 			name: "With Title Position",
@@ -53,31 +53,33 @@ func TestGetCounterFilename(t *testing.T) {
 				Extra: &Extra{TitlePosition: intP(1)},
 			},
 			position:       0,
-			suffix:         "suffix",
 			filenumber:     -1,
-			filenamesInUse: map[string]bool{},
-			expected:       "TitlePosition suffix.png",
+			expected:       "side_TitlePosition.png",
+			expectedPretty: "TitlePosition",
 		},
 		{
 			name: "Filename in use",
 			counter: Counter{
+				Extra: &Extra{Title: "ExtraTitle"},
 				Texts: []Text{
-					{Settings: Settings{Position: 0}, String: "Test"},
+					{Settings: Settings{Position: 3}, String: "Test"},
 				},
 			},
-			position:       0,
-			suffix:         "suffix",
+			position:       3,
 			filenumber:     1,
-			filenamesInUse: map[string]bool{"Test suffix": true},
-			expected:       "Test suffix 001.png",
+			expected:       "side_Test ExtraTitle_0000.png",
+			expectedPretty: "Test ExtraTitle",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.counter.GetCounterFilename("side", tt.position, tt.filenamesInUse)
-			if got != tt.expected {
-				t.Errorf("GetCounterFilename() = '%v', want '%v'", got, tt.expected)
+			tt.counter.GetCounterFilename("side", tt.position, filenamesInUse)
+			if tt.counter.Filename != tt.expected {
+				t.Errorf("GetCounterFilename() = '%v', want '%v'", tt.counter.Filename, tt.expected)
+			}
+			if tt.counter.PrettyName != tt.expectedPretty {
+				t.Errorf("PrettyName = '%v', want '%v'", tt.counter.PrettyName, tt.expectedPretty)
 			}
 		})
 	}

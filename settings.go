@@ -67,6 +67,8 @@ type Settings struct {
 	Skip bool `json:"skip,omitempty"`
 
 	BackPersistent bool `json:"back_persistent,omitempty"`
+
+	PrettyName string `json:"pretty_name,omitempty"`
 }
 
 func (s *Settings) ApplySettingsScaling(scaling float64) {

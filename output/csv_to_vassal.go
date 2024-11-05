@@ -7,7 +7,7 @@ import (
 	"html/template"
 	"os"
 	"path"
-	"sync"
+	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/sayden/counters"
@@ -120,8 +120,15 @@ func getVassalDataForCounters(t *counters.CounterTemplate, xmlFilepath string) (
 		}
 		id++
 
+		extension := path.Ext(file)
+		fileWithoutExtension := strings.TrimSuffix(file, extension)
+		sss := strings.Split(fileWithoutExtension, "_")
+		name := sss[0]
+		if len(sss) > 1 {
+			name = sss[1]
+		}
 		piece := counters.PieceSlot{
-			EntryName: file,
+			EntryName: name,
 			Gpid:      fmt.Sprintf("%d", gpid),
 			Height:    t.Height,
 			Width:     t.Width,
@@ -135,16 +142,16 @@ func getVassalDataForCounters(t *counters.CounterTemplate, xmlFilepath string) (
 		gpid++
 	}
 
-	filenamesInUse := new(sync.Map)
+	// filenamesInUse := new(sync.Map)
 
 	// Load counters into the module
 	for _, counter := range t.Counters {
 		buf := bytes.NewBufferString("")
 		if err = xmlTemplate.ExecuteTemplate(buf, "xml",
 			counters.CSVTemplateData{
-				Filename:  counter.GetCounterFilename("", t.PositionNumberForFilename, filenamesInUse),
-				PieceName: counter.GetCounterFilename("", t.PositionNumberForFilename, filenamesInUse),
-				Id:        fmt.Sprintf("%d", id),
+				// Filename:  counter.GetCounterFilename("", t.PositionNumberForFilename, filenamesInUse),
+				// PieceName: counter.GetCounterFilename("", t.PositionNumberForFilename, filenamesInUse),
+				Id: fmt.Sprintf("%d", id),
 			},
 		); err != nil {
 			return nil, errors.Wrap(err, "error trying to write Vassal xml file using templates")

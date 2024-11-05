@@ -179,9 +179,10 @@ func generateCounter(byt []byte) (response, error) {
 			return nil, err
 		}
 
+		counter.GetCounterFilename("", i, filenamesInUse)
 		counterImage := counterImage{
 			CounterImage: "data:image/png;base64," + buf.String(),
-			Id:           counter.GetCounterFilename("", i, filenamesInUse),
+			Id:           counter.Filename,
 		}
 
 		i++

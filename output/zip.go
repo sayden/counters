@@ -8,9 +8,9 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-func WriteZipFileWithFolderContent(destinationZipfilePath, inputFolder string) error {
+func WriteZipFileWithFolderContent(zipfile, tempFolder string) error {
 	// Create the zip/vmod file
-	outFile, err := os.Create(destinationZipfilePath)
+	outFile, err := os.Create(zipfile)
 	if err != nil {
 		log.Fatal("could not create destination vassal file", "error", err)
 	}
@@ -23,22 +23,22 @@ func WriteZipFileWithFolderContent(destinationZipfilePath, inputFolder string) e
 		}
 	}()
 
-	log.Info("Using", "basepath", inputFolder, "dest_file", destinationZipfilePath)
+	log.Info("Using", "temp_path", tempFolder, "dest_file", zipfile)
 
-	return addFiles(z, inputFolder, "")
+	return addFiles(z, tempFolder, "")
 }
 
 // https://stackoverflow.com/questions/37869793/how-do-i-zip-a-directory-containing-sub-directories-or-files-in-golang
-func addFiles(w *zip.Writer, basePath, baseInZip string) error {
+func addFiles(w *zip.Writer, tempFolder, baseInZip string) error {
 	// Open the Directory
-	files, err := os.ReadDir(basePath)
+	files, err := os.ReadDir(tempFolder)
 	if err != nil {
 		return err
 	}
 
 	for _, file := range files {
 		if !file.IsDir() {
-			dat, err := os.ReadFile(basePath + "/" + file.Name())
+			dat, err := os.ReadFile(tempFolder + "/" + file.Name())
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -54,7 +54,7 @@ func addFiles(w *zip.Writer, basePath, baseInZip string) error {
 			}
 		} else if file.IsDir() {
 			// Recurse
-			newBase := basePath + "/" + file.Name() + "/"
+			newBase := tempFolder + "/" + file.Name() + "/"
 
 			if err = addFiles(w, newBase, baseInZip+file.Name()+"/"); err != nil {
 				return err

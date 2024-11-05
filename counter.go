@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"path"
 	"strings"
 	"sync"
 	"text/template"
@@ -48,12 +49,12 @@ type Counters []Counter
 type Extra struct {
 	// PublicIcon in a FOW counter is the visible icon for the enemy. Imagine an icon for the back
 	// of a block in a Columbia game
-	PublicIcon         *Image `json:"public_icon,omitempty"`
 	CardImage          *Image `json:"card_image,omitempty"`
+	Cost               int    `json:"cost,omitempty"`
+	PublicIcon         *Image `json:"public_icon,omitempty"`
+	Side               string `json:"side,omitempty"`
 	SkipCardGeneration bool   `json:"skip_card_generation,omitempty"`
 	Title              string `json:"title,omitempty"`
-	Cost               int    `json:"cost,omitempty"`
-	Side               string `json:"side,omitempty"`
 	TitlePosition      *int   `json:"title_position,omitempty"`
 }
 
@@ -81,9 +82,9 @@ func (c *Counter) GetTextInPosition(i int) string {
 // filenumber: CounterTemplate.PositionNumberForFilename. So it will always be fixed number
 // position: The position of the text in the counter (0-16)
 // suffix: A suffix on the file. Constant
-func (c *Counter) GetCounterFilename(sideName string, position int, filenamesInUse *sync.Map) string {
+func (c *Counter) GetCounterFilename(sideName string, position int, filenamesInUse *sync.Map) {
 	if c.Filename != "" {
-		return c.Filename
+		return
 	}
 
 	var b strings.Builder
@@ -120,14 +121,23 @@ func (c *Counter) GetCounterFilename(sideName string, position int, filenamesInU
 	res := b.String()
 	res = strings.TrimSpace(res)
 
+	res = strings.TrimSpace(res)
+
+	c.PrettyName = res
+
+	if sideName != "" {
+		res = sideName + "_" + res
+	}
+
 	filenumber := 0
 	_, isFound := filenamesInUse.Load(res)
 	if isFound {
 		filenumber = 0
 		for {
-			tempRes := fmt.Sprintf("%s%03d", res, filenumber)
+			tempRes := fmt.Sprintf("%s_%04d", res, filenumber)
 			_, isFound = filenamesInUse.Load(tempRes)
 			if !isFound {
+				res = tempRes
 				break
 			}
 			filenumber++
@@ -135,23 +145,14 @@ func (c *Counter) GetCounterFilename(sideName string, position int, filenamesInU
 	}
 
 	if res == "" {
-		res = fmt.Sprintf("%03d", filenumber)
+		res = fmt.Sprintf("%04d", filenumber)
 	}
 	res = strings.TrimSpace(res)
 
 	filenamesInUse.Store(res, true)
-	if c.Extra == nil {
-		c.Extra = &Extra{}
-	}
-	if sideName != "" {
-		res = sideName + "_" + res
-	}
-	c.Extra.Title = res
 
 	res += ".png"
 	c.Filename = res
-
-	return res
 }
 
 func (c *Counter) Canvas(withGuides bool) (*gg.Context, error) {
@@ -240,17 +241,14 @@ func (c *Counter) ToVassal(sideName string) error {
 		return errors.New("vassal: side name is empty")
 	}
 
-	if strings.Contains(c.Extra.Title, "_back") {
-		return nil
-	}
-
+	backFilename := strings.TrimRight(c.Filename, path.Ext(c.Filename)) + "_back.png"
 	buf := bytes.NewBufferString("")
 	pieceTemp := PieceTemplateData{
 		FrontFilename: c.Filename,
-		BackFilename:  c.Extra.Title + "_back.png",
+		BackFilename:  backFilename,
 		FlipName:      sideName,
-		PieceName:     c.Filename,
-		Id:            c.Extra.Title,
+		PieceName:     c.PrettyName,
+		Id:            c.Filename,
 	}
 
 	err := pieceSlotTemplate.ExecuteTemplate(buf, "piece_text", pieceTemp)
@@ -258,12 +256,14 @@ func (c *Counter) ToVassal(sideName string) error {
 		return fmt.Errorf("could not execute template %w", err)
 	}
 
+	data := buf.String()
+	data = strings.ReplaceAll(data, "&#x9;", "\t")
 	piece := PieceSlot{
-		EntryName: c.Filename,
-		Gpid:      c.Extra.Title,
-		Height:    c.Height,
-		Width:     c.Width,
-		Data:      buf.String(),
+		EntryName: c.PrettyName,
+		// Gpid:      c.Extra.Title,
+		Height: c.Height,
+		Width:  c.Width,
+		Data:   data,
 	}
 
 	c.VassalPiece = &piece

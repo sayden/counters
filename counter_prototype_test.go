@@ -24,7 +24,7 @@ func TestCounterPrototypeToCounter(t *testing.T) {
 	}
 
 	filenamesInUse := &sync.Map{}
-	counter, err := proto.ToCounters(filenamesInUse)
+	counter, err := proto.ToCounters(filenamesInUse, "side", 0)
 	if assert.NoError(t, err) {
 		assert.Equal(t, 2, len(counter))
 		assert.Equal(t, "text", counter[0].Texts[0].String)

@@ -2,6 +2,7 @@ package counters
 
 import (
 	"image/color"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -26,7 +27,8 @@ func TestExpandPrototypeCounterTemplate(t *testing.T) {
 			"proto2": proto,
 		}}
 
-	ct, err := prototypeTemplate.ExpandPrototypeCounterTemplate()
+	filenamesInUse := &sync.Map{}
+	ct, err := prototypeTemplate.ExpandPrototypeCounterTemplate(filenamesInUse)
 	if assert.NoError(t, err) {
 		assert.Equal(t, 4, len(ct.Counters))
 		assert.Equal(t, "text", ct.Counters[0].Texts[0].String)

@@ -12,23 +12,20 @@ import (
 type CounterTemplate struct {
 	Settings
 
-	Vassal VassalCounterTemplateSettings `json:"vassal,omitempty"`
-
-	WorkingDirectory string `json:"working_directory,omitempty"`
-
 	Rows    int `json:"rows,omitempty" default:"2" jsonschema_description:"Number of rows, required when creating tiled based sheets for printing or TTS"`
 	Columns int `json:"columns,omitempty" default:"2" jsonschema_description:"Number of columns, required when creating tiled based sheets for printing or TTS"`
 
-	Mode         string   `json:"mode"`
-	OutputFolder string   `json:"output_folder" default:"output"`
-	DrawGuides   bool     `json:"draw_guides,omitempty"`
-	Scaling      *float64 `json:"scaling,omitempty"`
+	DrawGuides       bool                          `json:"draw_guides,omitempty"`
+	Mode             string                        `json:"mode"`
+	OutputFolder     string                        `json:"output_folder" default:"output"`
+	Scaling          *float64                      `json:"scaling,omitempty"`
+	Vassal           VassalCounterTemplateSettings `json:"vassal,omitempty"`
+	WorkingDirectory string                        `json:"working_directory,omitempty"`
 
 	// 0-16 Specify an position in the counter to use when writing a different file
 	PositionNumberForFilename int `json:"position_number_for_filename,omitempty"`
 
-	Counters []Counter `json:"counters,omitempty"`
-
+	Counters   []Counter                   `json:"counters,omitempty"`
 	Prototypes map[string]CounterPrototype `json:"prototypes,omitempty"`
 }
 
@@ -177,13 +174,8 @@ func (t *CounterTemplate) ExpandPrototypeCounterTemplate(filenamesInUse *sync.Ma
 	if t.Counters != nil {
 		for i, counter := range t.Counters {
 			if counter.Filename == "" {
-				var counterFilename string
-				if counter.Extra != nil && counter.Extra.TitlePosition != nil {
-					counterFilename = counter.GetCounterFilename(t.Vassal.SideName, *counter.Extra.TitlePosition, filenamesInUse)
-				} else {
-					counterFilename = counter.GetCounterFilename(t.Vassal.SideName, t.PositionNumberForFilename, filenamesInUse)
-				}
-				t.Counters[i].Filename = counterFilename
+				counter.GetCounterFilename(t.Vassal.SideName, t.PositionNumberForFilename, filenamesInUse)
+				t.Counters[i].Filename = counter.Filename
 			}
 		}
 	}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"sort"
 
 	"github.com/pkg/errors"
 	"github.com/sayden/counters"
@@ -15,13 +16,13 @@ import (
 
 func VassalModule(outputPath string, templatesFiles []string) error {
 	os.MkdirAll(outputPath, 0755)
-	destDir, err := os.MkdirTemp(outputPath, "vassal")
+	tempDir, err := os.MkdirTemp(outputPath, "vassal")
 	if err != nil {
 		return errors.Wrap(err, "error creating temporary directory")
 	}
-	defer os.RemoveAll(destDir)
+	defer os.RemoveAll(tempDir)
 
-	os.MkdirAll(path.Join(destDir, "images"), 0755)
+	_ = os.MkdirAll(path.Join(tempDir, "images"), 0755)
 
 	listOfListWidgets := make([]counters.ListWidget, 0, 3)
 
@@ -52,7 +53,7 @@ func VassalModule(outputPath string, templatesFiles []string) error {
 			return errors.Wrap(err, "error parsing prototyped template")
 		}
 
-		newTemplate.OutputFolder = path.Join(destDir, "images")
+		newTemplate.OutputFolder = path.Join(tempDir, "images")
 		moduleName = newTemplate.Vassal.ModuleName
 		mapFilename = newTemplate.Vassal.MapFile
 
@@ -83,23 +84,26 @@ func VassalModule(outputPath string, templatesFiles []string) error {
 				list.PieceSlot = append(list.PieceSlot, *newTemplate.Counters[i].VassalPiece)
 			}
 		}
+		sort.Sort(list.PieceSlot)
 
 		listOfListWidgets = append(listOfListWidgets, list)
 	}
 
 	// Copy map file to the images folder
-	if err = fsops.CopyFile(mapFilename, path.Join(destDir, "images", path.Base(mapFilename))); err != nil {
+	if err = fsops.CopyFile(mapFilename, path.Join(tempDir, "images", path.Base(mapFilename))); err != nil {
 		return errors.Wrap(err, "error copying map file")
 	}
 
-	return writeXMLFiles(destDir, moduleName, mapFilename, listOfListWidgets, outputPath, &hexGrid)
+	return writeXMLFiles(tempDir, moduleName, mapFilename, outputPath, listOfListWidgets, &hexGrid)
 }
 
-func writeXMLFiles(dir, moduleName, mapFilename string, listOfWidgets []counters.ListWidget, outputPath string, hexGrid *counters.HexGrid) error {
+func writeXMLFiles(tempDir, moduleName, mapFilename, outputPath string,
+	listOfWidgets []counters.ListWidget, hexGrid *counters.HexGrid) error {
 	// buildFile.xml
 	buildFile := vassal.GetBuildFile()
 
 	buildFile.Name = moduleName
+	buildFile.Version = "0.2"
 	buildFile.Map.BoardPicker.Board.Image = path.Base(mapFilename)
 	buildFile.Map.BoardPicker.Board.Name = moduleName
 	if hexGrid != nil {
@@ -107,7 +111,7 @@ func writeXMLFiles(dir, moduleName, mapFilename string, listOfWidgets []counters
 	}
 	buildFile.PieceWindow.TabWidget.ListWidget = listOfWidgets
 
-	f, err := os.Create(path.Join(dir, "buildFile.xml"))
+	f, err := os.Create(path.Join(tempDir, "buildFile.xml"))
 	if err != nil {
 		return fmt.Errorf("error creating buildFile.xml: %w", err)
 	}
@@ -121,7 +125,7 @@ func writeXMLFiles(dir, moduleName, mapFilename string, listOfWidgets []counters
 	// moduledata
 	moduleData := vassal.GetModuleData()
 	moduleData.Name = moduleName
-	f2, err := os.Create(path.Join(dir, "moduledata"))
+	f2, err := os.Create(path.Join(tempDir, "moduledata"))
 	if err != nil {
 		return fmt.Errorf("error creating buildFile.xml: %w", err)
 	}
@@ -129,5 +133,5 @@ func writeXMLFiles(dir, moduleName, mapFilename string, listOfWidgets []counters
 	xml.NewEncoder(f2).Encode(moduleData)
 
 	// Compress
-	return WriteZipFileWithFolderContent(path.Join("/tmp/test", moduleName+".vmod"), dir)
+	return WriteZipFileWithFolderContent(path.Join(outputPath, moduleName+".vmod"), tempDir)
 }

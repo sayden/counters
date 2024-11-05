@@ -25,7 +25,19 @@
           "scale": 0.5,
           "path_list": ["../assets/binoculars.png", "../assets/stripe.png"]
         }
-      ]
+      ],
+      "back": {
+        "text_prototypes": [
+          { "position": 3, "string_list": ["both1b", "both2b"] },
+          { "position": 7, "string_list": ["1b", "2b"] }
+        ],
+        "image_prototypes": [
+          {
+            "scale": 0.5,
+            "path_list": ["../assets/stripe.png", "../assets/stripe.png"]
+          }
+        ]
+      }
     },
     "only_image": {
       "texts": [
