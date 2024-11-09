@@ -39,8 +39,9 @@ type Counter struct {
 	// Generate the following counter with 'back' suffix in its filename
 	Back *Counter `json:"back,omitempty"`
 
-	Filename    string     `json:"filename,omitempty"`
-	VassalPiece *PieceSlot `json:"vassal,omitempty"`
+	Filename      string     `json:"filename,omitempty"`
+	PrototypeName string     `json:"-"`
+	VassalPiece   *PieceSlot `json:"vassal,omitempty"`
 }
 
 type Counters []Counter
@@ -82,7 +83,7 @@ func (c *Counter) GetTextInPosition(i int) string {
 // filenumber: CounterTemplate.PositionNumberForFilename. So it will always be fixed number
 // position: The position of the text in the counter (0-16)
 // suffix: A suffix on the file. Constant
-func (c *Counter) GetCounterFilename(sideName string, position int, filenamesInUse *sync.Map) {
+func (c *Counter) GenerateCounterFilename(sideName string, position int, filenamesInUse *sync.Map) {
 	if c.Filename != "" {
 		return
 	}
@@ -118,8 +119,11 @@ func (c *Counter) GetCounterFilename(sideName string, position int, filenamesInU
 		b.WriteString(name + " ")
 	}
 
+	if c.PrototypeName != "" {
+		b.WriteString(c.PrototypeName + " ")
+	}
+
 	res := b.String()
-	res = strings.TrimSpace(res)
 
 	res = strings.TrimSpace(res)
 

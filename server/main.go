@@ -2,9 +2,11 @@ package main
 
 import (
 	"bytes"
+	"embed"
 	"encoding/base64"
 	"fmt"
 	"io"
+	"io/fs"
 	"net/http"
 	"os"
 	"sync"
@@ -15,11 +17,6 @@ import (
 	"github.com/sayden/counters"
 	"golang.org/x/net/http2"
 )
-
-type bodyInput struct {
-	Cwd             string                   `json:"cwd"`
-	CounterTemplate counters.CounterTemplate `json:"counter"`
-}
 
 type counterImage struct {
 	CounterImage string `json:"counter"`
@@ -36,23 +33,22 @@ type responseMutex struct {
 var startingFolder, _ = os.Getwd()
 var globalResponse responseMutex
 
+//go:embed static/*
+var staticFiles embed.FS
+
 func main() {
 	log.SetLevel(log.DebugLevel)
 
 	router := gin.Default()
-	gin.ForceConsoleColor()
 
-	router.LoadHTMLGlob("./static/*.html")
-	router.StaticFile("/main.css", "./static/main.css")
-	router.StaticFile("/img.png", "./static/img.png")
-
-	router.GET("/", func(c *gin.Context) { c.HTML(http.StatusOK, "index.html", nil) })
+	f, err := fs.Sub(staticFiles, "static")
+	if err != nil {
+		log.Fatal(err)
+	}
+	router.StaticFS("/static", http.FS(f))
 
 	ch := make(chan []byte)
 	router.POST("/code", handlerCode(ch))
-	router.GET("/render", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "render.html", nil)
-	})
 	router.GET("/listen", handlerListen(ch))
 	router.GET("/state", func(c *gin.Context) {
 		globalResponse.Lock()
@@ -66,7 +62,9 @@ func main() {
 	server := &http.Server{Addr: ":8090", Handler: router}
 
 	// Configure HTTP/2
-	http2.ConfigureServer(server, &http2.Server{})
+	if err = http2.ConfigureServer(server, &http2.Server{}); err != nil {
+		log.Fatal(err)
+	}
 
 	// log.Fatal(server.ListenAndServeTLS("server.crt", "server.key"))
 	log.Fatal(server.ListenAndServe())
@@ -179,7 +177,7 @@ func generateCounter(byt []byte) (response, error) {
 			return nil, err
 		}
 
-		counter.GetCounterFilename("", i, filenamesInUse)
+		counter.GenerateCounterFilename("", i, filenamesInUse)
 		counterImage := counterImage{
 			CounterImage: "data:image/png;base64," + buf.String(),
 			Id:           counter.Filename,

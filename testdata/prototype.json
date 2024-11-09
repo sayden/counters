@@ -41,7 +41,6 @@
       }
     },
     "only_image": {
-      "extra": { "title": "only_image" },
       "texts": [
         { "position": 3, "string": "image" },
         { "position": 7, "string": "A" }
@@ -54,7 +53,6 @@
       ]
     },
     "only_text": {
-      "extra": { "title": "only_text" },
       "text_prototypes": [
         {
           "position": 11,

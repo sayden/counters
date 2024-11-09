@@ -30,7 +30,7 @@ type TextPrototype struct {
 	StringList []string `json:"string_list"`
 }
 
-func (p *CounterPrototype) ToCounters(filenamesInUse *sync.Map, sideName string, positionNumberForFilename int) ([]Counter, error) {
+func (p *CounterPrototype) ToCounters(filenamesInUse *sync.Map, sideName, prototypeName string, positionNumberForFilename int) ([]Counter, error) {
 	cts := make([]Counter, 0)
 
 	// You can prototype texts and images, so one of the two must be present, get their length
@@ -47,12 +47,13 @@ func (p *CounterPrototype) ToCounters(filenamesInUse *sync.Map, sideName string,
 		if err := deepcopy.FromTo(p.Counter, &newCounter); err != nil {
 			return nil, err
 		}
+		newCounter.PrototypeName = prototypeName
 
 		if err = p.applyPrototypes(&newCounter, i); err != nil {
 			return nil, err
 		}
 
-		newCounter.GetCounterFilename(sideName, positionNumberForFilename, filenamesInUse)
+		newCounter.GenerateCounterFilename(sideName, positionNumberForFilename, filenamesInUse)
 
 		if p.Back != nil {
 			var tempBackCounter Counter

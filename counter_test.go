@@ -74,7 +74,7 @@ func TestGetCounterFilename(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.counter.GetCounterFilename("side", tt.position, filenamesInUse)
+			tt.counter.GenerateCounterFilename("side", tt.position, filenamesInUse)
 			if tt.counter.Filename != tt.expected {
 				t.Errorf("GetCounterFilename() = '%v', want '%v'", tt.counter.Filename, tt.expected)
 			}

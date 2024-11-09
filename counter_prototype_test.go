@@ -24,7 +24,7 @@ func TestCounterPrototypeToCounter(t *testing.T) {
 	}
 
 	filenamesInUse := &sync.Map{}
-	counter, err := proto.ToCounters(filenamesInUse, "side", 0)
+	counter, err := proto.ToCounters(filenamesInUse, "side", "testing", 0)
 	if assert.NoError(t, err) {
 		assert.Equal(t, 2, len(counter))
 		assert.Equal(t, "text", counter[0].Texts[0].String)
@@ -62,7 +62,7 @@ func TestJSONPrototypes(t *testing.T) {
 	// check the marshalling of the template to an expected byte slice
 	actualBytes, err := json.MarshalIndent(newTempl, "", "  ")
 	assert.NoError(t, err)
-	if !assert.Equal(t, 18538, len(actualBytes)) {
+	if !assert.Equal(t, 18356, len(actualBytes)) {
 		t.FailNow()
 	}
 
@@ -74,7 +74,7 @@ func TestJSONPrototypes(t *testing.T) {
 	assert.NoError(t, err)
 
 	// // ensure we are using the expected file and that it has not been altered by mistake
-	if !assert.Equal(t, 18538, len(expectedBytes), "expected file has been altered, aborting test") {
+	if !assert.Equal(t, 18356, len(expectedBytes), "expected file has been altered, aborting test") {
 		t.FailNow()
 	}
 

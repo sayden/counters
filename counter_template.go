@@ -160,7 +160,7 @@ func (t *CounterTemplate) ExpandPrototypeCounterTemplate(filenamesInUse *sync.Ma
 		for _, prototypeName := range names {
 			prototype := t.Prototypes[prototypeName]
 
-			cts, err := prototype.ToCounters(filenamesInUse, t.Vassal.SideName, t.PositionNumberForFilename)
+			cts, err := prototype.ToCounters(filenamesInUse, t.Vassal.SideName, prototypeName, t.PositionNumberForFilename)
 			if err != nil {
 				return nil, err
 			}
@@ -174,7 +174,7 @@ func (t *CounterTemplate) ExpandPrototypeCounterTemplate(filenamesInUse *sync.Ma
 	if t.Counters != nil {
 		for i, counter := range t.Counters {
 			if counter.Filename == "" {
-				counter.GetCounterFilename(t.Vassal.SideName, t.PositionNumberForFilename, filenamesInUse)
+				counter.GenerateCounterFilename(t.Vassal.SideName, t.PositionNumberForFilename, filenamesInUse)
 				t.Counters[i].Filename = counter.Filename
 			}
 		}

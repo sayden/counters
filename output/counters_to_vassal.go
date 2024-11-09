@@ -15,6 +15,7 @@ import (
 )
 
 func VassalModule(outputPath string, templatesFiles []string) error {
+	// TODO: Side effects
 	os.MkdirAll(outputPath, 0755)
 	tempDir, err := os.MkdirTemp(outputPath, "vassal")
 	if err != nil {
@@ -67,6 +68,7 @@ func VassalModule(outputPath string, templatesFiles []string) error {
 			hexGrid.Visible = "false"
 		}
 
+		// TODO: Side effects
 		CountersToPNG(newTemplate)
 
 		// get an array of the vassal pieces
@@ -89,6 +91,7 @@ func VassalModule(outputPath string, templatesFiles []string) error {
 		listOfListWidgets = append(listOfListWidgets, list)
 	}
 
+	// TODO: Side effects
 	// Copy map file to the images folder
 	if err = fsops.CopyFile(mapFilename, path.Join(tempDir, "images", path.Base(mapFilename))); err != nil {
 		return errors.Wrap(err, "error copying map file")
@@ -111,6 +114,7 @@ func writeXMLFiles(tempDir, moduleName, mapFilename, outputPath string,
 	}
 	buildFile.PieceWindow.TabWidget.ListWidget = listOfWidgets
 
+	// TODO: Side effects
 	f, err := os.Create(path.Join(tempDir, "buildFile.xml"))
 	if err != nil {
 		return fmt.Errorf("error creating buildFile.xml: %w", err)
@@ -125,6 +129,7 @@ func writeXMLFiles(tempDir, moduleName, mapFilename, outputPath string,
 	// moduledata
 	moduleData := vassal.GetModuleData()
 	moduleData.Name = moduleName
+	// TODO: Side effects
 	f2, err := os.Create(path.Join(tempDir, "moduledata"))
 	if err != nil {
 		return fmt.Errorf("error creating buildFile.xml: %w", err)

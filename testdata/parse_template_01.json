@@ -34,7 +34,7 @@
       "stroke_width": -1,
       "stroke_color": "black",
       "image_scaling": "fitWidth",
-      "pretty_name": "both1_back",
+      "pretty_name": "both1 both_back",
       "images": [
         {
           "width": 82,
@@ -99,7 +99,7 @@
           "string": "1b"
         }
       ],
-      "filename": "both1_back.png"
+      "filename": "both1 both_back.png"
     },
     {
       "width": 82,
@@ -118,7 +118,7 @@
       "multiplier": 1,
       "stroke_width": -1,
       "image_scaling": "fitWidth",
-      "pretty_name": "both1",
+      "pretty_name": "both1 both",
       "images": [
         {
           "width": 82,
@@ -183,7 +183,7 @@
           "string": "1"
         }
       ],
-      "filename": "both1.png"
+      "filename": "both1 both.png"
     },
     {
       "width": 82,
@@ -202,7 +202,7 @@
       "multiplier": 1,
       "stroke_width": -1,
       "image_scaling": "fitWidth",
-      "pretty_name": "both2_back",
+      "pretty_name": "both2 both_back",
       "images": [
         {
           "width": 82,
@@ -267,7 +267,7 @@
           "string": "2b"
         }
       ],
-      "filename": "both2_back.png"
+      "filename": "both2 both_back.png"
     },
     {
       "width": 82,
@@ -286,7 +286,7 @@
       "multiplier": 1,
       "stroke_width": -1,
       "image_scaling": "fitWidth",
-      "pretty_name": "both2",
+      "pretty_name": "both2 both",
       "images": [
         {
           "width": 82,
@@ -351,7 +351,7 @@
           "string": "2"
         }
       ],
-      "filename": "both2.png"
+      "filename": "both2 both.png"
     },
     {
       "width": 82,
@@ -435,9 +435,6 @@
           "string": "A"
         }
       ],
-      "extra": {
-        "title": "only_image"
-      },
       "filename": "image only_image.png"
     },
     {
@@ -522,9 +519,6 @@
           "string": "A"
         }
       ],
-      "extra": {
-        "title": "only_image"
-      },
       "filename": "image only_image_0000.png"
     },
     {
@@ -609,9 +603,6 @@
           "string": "11"
         }
       ],
-      "extra": {
-        "title": "only_text"
-      },
       "filename": "11 only_text.png"
     },
     {
@@ -696,9 +687,6 @@
           "string": "22"
         }
       ],
-      "extra": {
-        "title": "only_text"
-      },
       "filename": "22 only_text.png"
     }
   ]
