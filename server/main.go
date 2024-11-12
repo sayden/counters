@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"net/http"
 	"os"
+	"slices"
 	"sync"
 
 	"github.com/a-h/templ"
@@ -167,29 +168,55 @@ func generateCounter(byt []byte) (response, error) {
 
 	i := 0
 	fileNumberPlaceholder := 0
+	var wg sync.WaitGroup
+	wg.Add(len(newTemplate.Counters))
+	var ch = make(chan counterImage, len(newTemplate.Counters))
 	for _, counter := range newTemplate.Counters {
-		buf := new(bytes.Buffer)
-		wc := base64.NewEncoder(base64.StdEncoding, buf)
+		go func(counter counters.Counter, i, fileNumberPlaceholder int) {
+			defer wg.Done()
+			buf := new(bytes.Buffer)
+			wc := base64.NewEncoder(base64.StdEncoding, buf)
 
-		// get a canvas with the rendered counter. The canvas can be written to a io.Writer
-		err := counter.EncodeCounter(wc, newTemplate.DrawGuides)
-		if err != nil {
-			return nil, err
-		}
+			// get a canvas with the rendered counter. The canvas can be written to a io.Writer
+			err := counter.EncodeCounter(wc, newTemplate.DrawGuides)
+			if err != nil {
+				log.Error(err)
+			}
 
-		counter.GenerateCounterFilename("", i, filenamesInUse)
-		counterImage := counterImage{
-			CounterImage: "data:image/png;base64," + buf.String(),
-			Id:           counter.Filename,
-		}
+			counter.GenerateCounterFilename("", i, filenamesInUse)
+			counterImage := counterImage{
+				CounterImage: "data:image/png;base64," + buf.String(),
+				Id:           counter.Filename,
+			}
+			wc.Close()
+			ch <- counterImage
+		}(counter, i, fileNumberPlaceholder)
 
 		i++
 		fileNumberPlaceholder++
 
-		response = append(response, counterImage)
-		wc.Close()
 	}
 
+	wg.Wait()
+
+	for counterImage := range ch {
+		response = append(response, counterImage)
+		if len(response) == cap(response) {
+			break
+		}
+	}
+
+	slices.SortFunc(response, func(a, b counterImage) int {
+		if a.Id < b.Id {
+			return -1
+		} else if a.Id > b.Id {
+			return 1
+		}
+
+		return 0
+	})
+
 	log.Debug("generateCounters", "total", len(response))
+
 	return response, nil
 }
