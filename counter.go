@@ -2,6 +2,7 @@ package counters
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"path"
@@ -9,6 +10,7 @@ import (
 	"sync"
 	"text/template"
 
+	"dario.cat/mergo"
 	"github.com/fogleman/gg"
 	"github.com/pkg/errors"
 	"github.com/thehivecorporation/log"
@@ -244,7 +246,7 @@ func (c *Counter) ToVassal(sideName string) error {
 		return errors.New("vassal: side name is empty")
 	}
 
-	backFilename := strings.TrimRight(c.Filename, path.Ext(c.Filename)) + "_back.png"
+	backFilename := strings.TrimSuffix(c.Filename, path.Ext(c.Filename)) + "_back.png"
 	buf := bytes.NewBufferString("")
 	pieceTemp := PieceTemplateData{
 		FrontFilename: c.Filename,
@@ -263,13 +265,32 @@ func (c *Counter) ToVassal(sideName string) error {
 	data = strings.ReplaceAll(data, "&#x9;", "\t")
 	piece := PieceSlot{
 		EntryName: c.PrettyName,
-		// Gpid:      c.Extra.Title,
-		Height: c.Height,
-		Width:  c.Width,
-		Data:   data,
+		Height:    c.Height,
+		Width:     c.Width,
+		Data:      data,
 	}
 
 	c.VassalPiece = &piece
 
 	return nil
+}
+
+func (c *Counter) mergeFrontAndBack() (*Counter, error) {
+	if err := mergo.Merge(c.Back, c); err != nil {
+		return nil, fmt.Errorf("could not merge back and front counter: %w", err)
+	}
+	c.Back.Back = nil
+
+	if c.PrettyName == "" {
+		byt, _ := json.MarshalIndent(c, "", "  ")
+		return nil, fmt.Errorf("PrettyName was empty for counter:\n%s\n", string(byt))
+	}
+
+	c.Back.PrettyName = c.PrettyName + "_back"
+	c.Back.Filename = strings.TrimSuffix(c.Filename, path.Ext(c.Filename)) + "_back.png"
+
+	c.Back.Images = mergeImagesOrTexts(c.Images, c.Back.Images)
+	c.Back.Texts = mergeImagesOrTexts(c.Texts, c.Back.Texts)
+
+	return c.Back, nil
 }

@@ -5,6 +5,7 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/charmbracelet/log"
 	"github.com/creasty/defaults"
 	"github.com/pkg/errors"
 )
@@ -143,41 +144,72 @@ func (t *CounterTemplate) ParsePrototype() (*CounterTemplate, error) {
 }
 
 func (t *CounterTemplate) ExpandPrototypeCounterTemplate(filenamesInUse *sync.Map) (*CounterTemplate, error) {
-	// JSON counters to Counters, check Prototype in CounterTemplate
-	if t.Prototypes != nil {
-		if t.Counters == nil {
-			t.Counters = make([]Counter, 0)
-		}
-
-		// sort prototypes by name, to ensure consistent output filenames this is a small
-		// inconvenience, because iterating over maps in Go returns keys in random order
-		names := make([]string, 0, len(t.Prototypes))
-		for name := range t.Prototypes {
-			names = append(names, name)
-		}
-		sort.Strings(names)
-
-		for _, prototypeName := range names {
-			prototype := t.Prototypes[prototypeName]
-
-			cts, err := prototype.ToCounters(filenamesInUse, t.Vassal.SideName, prototypeName, t.PositionNumberForFilename)
-			if err != nil {
-				return nil, err
-			}
-
-			t.Counters = append(t.Counters, cts...)
-		}
-
-		t.Prototypes = nil
-	}
-
 	if t.Counters != nil {
-		for i, counter := range t.Counters {
+		total := len(t.Counters)
+		for i := 0; i < total; i++ {
+			counter := t.Counters[i]
 			if counter.Filename == "" {
-				counter.GenerateCounterFilename(t.Vassal.SideName, t.PositionNumberForFilename, filenamesInUse)
-				t.Counters[i].Filename = counter.Filename
+				t.Counters[i].GenerateCounterFilename(t.Vassal.SideName, t.PositionNumberForFilename, filenamesInUse)
+				// t.Counters[i].Filename = counter.Filename
+			}
+
+			if counter.Back != nil {
+				backCounter, err := t.Counters[i].mergeFrontAndBack()
+				if err != nil {
+					return nil, err
+				}
+
+				t.Counters = append(t.Counters, *backCounter)
+				// t.Counters[i].Back = nil
+			}
+
+			if t.Vassal.SideName != "" {
+				err := t.Counters[i].ToVassal(t.Vassal.SideName)
+				if err != nil {
+					log.Warn("could not create vassal piece from counter", err)
+				}
 			}
 		}
+
+		// JSON counters to Counters, check Prototype in CounterTemplate
+		if t.Prototypes != nil {
+			if t.Counters == nil {
+				t.Counters = make([]Counter, 0)
+			}
+
+			// sort prototypes by name, to ensure consistent output filenames this is a small
+			// inconvenience, because iterating over maps in Go returns keys in random order
+			names := make([]string, 0, len(t.Prototypes))
+			for name := range t.Prototypes {
+				names = append(names, name)
+			}
+			sort.Strings(names)
+
+			for _, prototypeName := range names {
+				prototype := t.Prototypes[prototypeName]
+
+				cts, err := prototype.ToCounters(filenamesInUse, t.Vassal.SideName, prototypeName, t.PositionNumberForFilename)
+				if err != nil {
+					return nil, err
+				}
+
+				t.Counters = append(t.Counters, cts...)
+			}
+
+			t.Prototypes = nil
+		}
+
+		if t.Counters != nil {
+			total := len(t.Counters)
+			for i := 0; i < total; i++ {
+				counter := t.Counters[i]
+				if counter.Filename == "" {
+					counter.GenerateCounterFilename(t.Vassal.SideName, t.PositionNumberForFilename, filenamesInUse)
+					t.Counters[i].Filename = counter.Filename
+				}
+			}
+		}
+
 	}
 
 	return t, nil

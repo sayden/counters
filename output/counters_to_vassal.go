@@ -28,7 +28,7 @@ func VassalModule(outputPath string, templatesFiles []string) error {
 	listOfListWidgets := make([]counters.ListWidget, 0, 3)
 
 	moduleName := ""
-	mapFilename := ""
+	mapFilepath := ""
 	hexGrid := counters.HexGrid{
 		Color:        "204,0,204",
 		CornersLegal: "false",
@@ -37,6 +37,14 @@ func VassalModule(outputPath string, templatesFiles []string) error {
 		SnapTo:       "true",
 		Visible:      "false",
 	}
+
+	cur, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	defer os.Chdir(cur)
+	wdString := ""
 
 	// create all the counters in their respective folders
 	for _, inputPath := range templatesFiles {
@@ -53,10 +61,13 @@ func VassalModule(outputPath string, templatesFiles []string) error {
 		if err != nil {
 			return errors.Wrap(err, "error parsing prototyped template")
 		}
+		if newTemplate.WorkingDirectory != "" {
+			wdString = newTemplate.WorkingDirectory
+		}
 
 		newTemplate.OutputFolder = path.Join(tempDir, "images")
 		moduleName = newTemplate.Vassal.ModuleName
-		mapFilename = newTemplate.Vassal.MapFile
+		mapFilepath = newTemplate.Vassal.MapFile
 
 		if newTemplate.Vassal.HexGrid != nil {
 			hexGrid = *newTemplate.Vassal.HexGrid
@@ -89,11 +100,15 @@ func VassalModule(outputPath string, templatesFiles []string) error {
 		sort.Sort(list.PieceSlot)
 
 		listOfListWidgets = append(listOfListWidgets, list)
+
 	}
 
 	// TODO: Side effects
 	// Copy map file to the images folder
-	if err = fsops.CopyFile(mapFilename, path.Join(tempDir, "images", path.Base(mapFilename))); err != nil {
+	os.Chdir(os.ExpandEnv(wdString))
+	mapFilepath = os.ExpandEnv(mapFilepath)
+	mapFilename := path.Base(mapFilepath)
+	if err = fsops.CopyFile(mapFilepath, path.Join(tempDir, "images", mapFilename)); err != nil {
 		return errors.Wrap(err, "error copying map file")
 	}
 
@@ -107,7 +122,7 @@ func writeXMLFiles(tempDir, moduleName, mapFilename, outputPath string,
 
 	buildFile.Name = moduleName
 	buildFile.Version = "0.2"
-	buildFile.Map.BoardPicker.Board.Image = path.Base(mapFilename)
+	buildFile.Map.BoardPicker.Board.Image = mapFilename
 	buildFile.Map.BoardPicker.Board.Name = moduleName
 	if hexGrid != nil {
 		buildFile.Map.BoardPicker.Board.HexGrid = *hexGrid
