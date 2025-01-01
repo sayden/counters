@@ -190,7 +190,7 @@ func mergeFrontAndBack(frontCounter *Counter, backProto *CounterPrototype, index
 		}
 
 		newImage.Path = imageProto.PathList[index]
-		replaceOrAddPrototypes(backCounter.Images, newImage)
+		backCounter.Images = replaceOrAddPrototypes(backCounter.Images, newImage)
 	}
 
 	for _, textProto := range backProto.TextPrototypes {
@@ -200,7 +200,7 @@ func mergeFrontAndBack(frontCounter *Counter, backProto *CounterPrototype, index
 		}
 
 		newText.String = textProto.StringList[index]
-		replaceOrAddPrototypes(backCounter.Texts, newText)
+		backCounter.Texts = replaceOrAddPrototypes(backCounter.Texts, newText)
 	}
 
 	return backCounter, nil
@@ -240,7 +240,7 @@ frontLoop:
 // replaceOrAddPrototypes is used to override texts or images in the back of the counter. It checks
 // if a prototype with the same position as newPrototype already exists and replaces it if it does
 // or adds it if it doesn't
-func replaceOrAddPrototypes[T SettingsGetter](originals []T, newProto T) {
+func replaceOrAddPrototypes[T SettingsGetter](originals []T, newProto T) []T {
 	found := false
 	for j, original := range originals {
 		if original.GetSettings().Position == newProto.GetSettings().Position {
@@ -252,6 +252,8 @@ func replaceOrAddPrototypes[T SettingsGetter](originals []T, newProto T) {
 	if !found {
 		originals = append(originals, newProto)
 	}
+
+	return originals
 }
 
 func cloneSlice[T any](ts []T) (res []T, err error) {

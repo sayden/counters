@@ -6,9 +6,9 @@ import "github.com/sayden/counters"
 type SimpleFowCounterBuilder struct{}
 
 func (d *SimpleFowCounterBuilder) ToNewCounter(cc *counters.Counter) (*counters.Counter, error) {
-	defer func() { cc.Extra = nil }()
+	defer func() { cc.Metadata = nil }()
 
-	if cc.Extra != nil && cc.Extra.PublicIcon.Path == "" {
+	if cc.Metadata != nil && cc.Metadata.PublicIcon.Path == "" {
 		// No public image, no fow counter
 		return cc, nil
 	}
@@ -20,8 +20,8 @@ func (d *SimpleFowCounterBuilder) ToNewCounter(cc *counters.Counter) (*counters.
 	validFowImagesInCounter := make([]counters.Image, 0)
 	for _, image := range cc.Images {
 		if image.Position == 0 {
-			image.Path = cc.Extra.PublicIcon.Path
-			image.Scale = cc.Extra.PublicIcon.Scale
+			image.Path = cc.Metadata.PublicIcon.Path
+			image.Scale = cc.Metadata.PublicIcon.Scale
 			image.YShift = floatP(0)
 			image.XShift = floatP(0)
 			validFowImagesInCounter = append(validFowImagesInCounter, image)

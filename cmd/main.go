@@ -17,6 +17,7 @@ var Cli struct {
 	Vassal           vassalCli        `cmd:"" help:"Create a vassal module for testing"`
 	GenerateTemplate GenerateTemplate `cmd:"" help:"Generates a new counter template file with default values"`
 	CheckTemplate    CheckTemplate    `cmd:"" help:"Check if a JSON file is a valid counter template"`
+	Tilemap          Tilemap          `cmd:"" help:"Generate a tilemap"`
 }
 
 func main() {

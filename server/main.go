@@ -22,6 +22,7 @@ import (
 type counterImage struct {
 	CounterImage string `json:"counter"`
 	Id           string `json:"id"`
+	PrettyName   string `json:"pretty_name"`
 }
 
 type response []counterImage
@@ -187,6 +188,7 @@ func generateCounter(byt []byte) (response, error) {
 			counterImage := counterImage{
 				CounterImage: "data:image/png;base64," + buf.String(),
 				Id:           counter.Filename,
+				PrettyName:   counter.PrettyName,
 			}
 			wc.Close()
 			ch <- counterImage

@@ -1,13 +1,10 @@
 package main
 
-templ Hello(name string) {
-	<div>
-		<h1>Hello, { name }</h1>
-	</div>
-}
-
 templ Counters(res response) {
 	for _, counter := range res {
-		<img id={ counter.Id } class="rounded-md m-2" src={ counter.CounterImage } alt={ counter.Id }/>
+		<div>
+			<img id={ counter.Id } class="rounded-md m-2" src={ counter.CounterImage } alt={ counter.Id }/>
+			<p class="mt-1 truncate text-xs/5 text-gray-500">{ counter.PrettyName }</p>
+		</div>
 	}
 }

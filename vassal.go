@@ -3,10 +3,7 @@ package counters
 import "encoding/xml"
 
 const (
-	// Template_VassalPiece           = `+/null/prototype;UnitStep	prototype;RU\	emb2;Activate;128;A;;128;;;128;;;;1;false;0;0;{{ .FrontFilename }},{{ .BackFilename }};,;false;{{ .PieceName }};;;true;StepValue;1;1;true;65,130;;;;1.0;;true\\	piece;;;{{ .FrontFilename }};{{ .Id }}/	\	1\\	null;0;0;398;0`
-	Template_NewVassalPiece = `+/null/prototype;Prototype	emb2;Flip;128;A;;128;;;128;;;;1;false;0;0;{{.BackFilename}};{{.PieceName}};true;{{.PieceName}};;;false;StepValue;1;1;false;65,130;;;;1.0;;true\	piece;;;{{.FrontFilename}};{{.PieceName}}/	-1\	null;117;107;89;1;ppScale;1.0`
-	// Template_Reference_VassalPiece = `+/null/prototype;UnitStep	prototype;RU\	emb2;Activate;128;A;;128;;;128;;;;1;false;0;0;{{ .FilenameFront }},{{ .FilenameBack }};,;false;{{ .CounterName }};;;true;StepValue;1;1;true;65,130;;;;1.0;;true\\	piece;;;{{ .FilenameFront }};{{ .Id }}/	\	1\\	null;0;0;398;0`
-	// Template_OldPiece              = `+/null/prototype;BasicPrototype	piece;;;{{ .Filename }};{{ .PieceName}}/	null;0;0;{{ .Id }};0`
+	Template_VassalPiece = `+/null/prototype;Prototype	emb2;Flip;128;A;;128;;;128;;;;1;false;0;0;{{.BackFilename}};{{.PieceName}};true;{{.PieceName}};;;false;StepValue;1;1;false;65,130;;;;1.0;;true\	piece;;;{{.FrontFilename}};{{.PieceName}}/	-1\	null;117;107;89;1;ppScale;1.0`
 )
 
 type VassalGameModule struct {

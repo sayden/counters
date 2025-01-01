@@ -13,7 +13,7 @@ func TestToNewCard(t *testing.T) {
 	}
 
 	counter := counters.Counter{
-		Extra: &counters.Extra{
+		Metadata: &counters.Metadata{
 			CardImage: &counters.Image{
 				Path:     "assets/binoculars.jpg",
 				Settings: counters.Settings{ImageScaling: "fitWidth"},

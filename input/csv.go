@@ -51,7 +51,7 @@ func ReadCSVCounters(filepath string) (*counters.CounterTemplate, error) {
 
 				// Side: red, blue, german, russian, etc.
 				if colIndex == 17 {
-					cnt.Extra.Side = cell
+					cnt.Metadata.Side = cell
 					continue
 				} else if colIndex == 18 {
 					//background color

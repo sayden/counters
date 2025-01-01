@@ -48,18 +48,18 @@ func (w *QuotesToCardTransformer) getCardAreas(cc *counters.Counter, q counters.
 		switch img.Position {
 		case 0:
 			// Use a different image
-			if cc.Extra.CardImage.Path != "" {
-				cc.Images[i].Path = cc.Extra.CardImage.Path
+			if cc.Metadata.CardImage.Path != "" {
+				cc.Images[i].Path = cc.Metadata.CardImage.Path
 			}
 
 			// Change the scaling
-			if cc.Extra.CardImage.ImageScaling != "" {
-				cc.Images[i].Path = cc.Extra.CardImage.ImageScaling
+			if cc.Metadata.CardImage.ImageScaling != "" {
+				cc.Images[i].Path = cc.Metadata.CardImage.ImageScaling
 			}
 
 			// Change the scale in case it is too small or too big
-			if cc.Extra.CardImage.Scale != 0 {
-				cc.Images[i].Scale = cc.Extra.CardImage.Scale
+			if cc.Metadata.CardImage.Scale != 0 {
+				cc.Images[i].Scale = cc.Metadata.CardImage.Scale
 			}
 		}
 	}

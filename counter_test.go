@@ -36,7 +36,7 @@ func TestGetCounterFilename(t *testing.T) {
 			counter: Counter{
 				Texts: []Text{
 					{Settings: Settings{Position: 0}, String: "Test"}},
-				Extra: &Extra{Title: "ExtraTitle"},
+				Metadata: &Metadata{Title: "ExtraTitle"},
 			},
 			position:       0,
 			filenumber:     -1,
@@ -50,7 +50,7 @@ func TestGetCounterFilename(t *testing.T) {
 					{Settings: Settings{Position: 0}, String: "Test"},
 					{Settings: Settings{Position: 1}, String: "TitlePosition"},
 				},
-				Extra: &Extra{TitlePosition: intP(1)},
+				Metadata: &Metadata{TitlePosition: intP(1)},
 			},
 			position:       0,
 			filenumber:     -1,
@@ -60,7 +60,7 @@ func TestGetCounterFilename(t *testing.T) {
 		{
 			name: "Filename in use",
 			counter: Counter{
-				Extra: &Extra{Title: "ExtraTitle"},
+				Metadata: &Metadata{Title: "ExtraTitle"},
 				Texts: []Text{
 					{Settings: Settings{Position: 3}, String: "Test"},
 				},

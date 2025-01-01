@@ -18,7 +18,7 @@ import (
 
 func init() {
 	var err error
-	pieceSlotTemplate, err = template.New("piece_text").Parse(Template_NewVassalPiece)
+	pieceSlotTemplate, err = template.New("piece_text").Parse(Template_VassalPiece)
 	if err != nil {
 		panic(fmt.Errorf("could not parse template string %w", err))
 	}
@@ -34,9 +34,9 @@ type Counter struct {
 	SingleStep bool `json:"single_step,omitempty"`
 	Frame      bool `json:"frame,omitempty"`
 
-	Images Images `json:"images,omitempty"`
-	Texts  Texts  `json:"texts,omitempty"`
-	Extra  *Extra `json:"extra,omitempty"`
+	Images   Images    `json:"images,omitempty"`
+	Texts    Texts     `json:"texts,omitempty"`
+	Metadata *Metadata `json:"extra,omitempty"`
 
 	// Generate the following counter with 'back' suffix in its filename
 	Back *Counter `json:"back,omitempty"`
@@ -48,8 +48,8 @@ type Counter struct {
 
 type Counters []Counter
 
-// TODO This Extra contains data from all projects
-type Extra struct {
+// TODO This Metadata contains data from all projects
+type Metadata struct {
 	// PublicIcon in a FOW counter is the visible icon for the enemy. Imagine an icon for the back
 	// of a block in a Columbia game
 	CardImage          *Image `json:"card_image,omitempty"`
@@ -94,9 +94,9 @@ func (c *Counter) GenerateCounterFilename(sideName string, position int, filenam
 	var name string
 	name = c.GetTextInPosition(position)
 
-	if c.Extra != nil {
-		if c.Extra.TitlePosition != nil && *c.Extra.TitlePosition != position {
-			name = c.GetTextInPosition(*c.Extra.TitlePosition)
+	if c.Metadata != nil {
+		if c.Metadata.TitlePosition != nil && *c.Metadata.TitlePosition != position {
+			name = c.GetTextInPosition(*c.Metadata.TitlePosition)
 		}
 		if name != "" {
 			b.WriteString(name + " ")
@@ -106,13 +106,13 @@ func (c *Counter) GenerateCounterFilename(sideName string, position int, filenam
 		// counters with the same positional name are close together in the destination folder
 		name = ""
 
-		if c.Extra.Side != "" {
-			b.WriteString(c.Extra.Side)
+		if c.Metadata.Side != "" {
+			b.WriteString(c.Metadata.Side)
 			b.WriteString(" ")
 		}
 
-		if c.Extra.Title != "" {
-			b.WriteString(c.Extra.Title)
+		if c.Metadata.Title != "" {
+			b.WriteString(c.Metadata.Title)
 			b.WriteString(" ")
 		}
 	}

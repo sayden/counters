@@ -42,6 +42,7 @@
         <VASSAL.build.module.properties.GlobalProperties/>
         <VASSAL.build.module.map.SelectionHighlighters/>
         <VASSAL.build.module.map.HighlightLastMoved color="255,0,0" enabled="true" thickness="2"/>
+        <VASSAL.build.module.map.HidePiecesButton buttonText="" hiddenIcon="/images/globe_selected.gif" hotkey="" showingIcon="/images/globe_unselected.gif" tooltip=""/>
     </VASSAL.build.module.Map>
     <VASSAL.build.module.gamepieceimage.GamePieceImageDefinitions>
         <VASSAL.build.module.gamepieceimage.ColorManager/>
@@ -55,7 +56,7 @@
     <VASSAL.build.module.Chatter/>
     <VASSAL.build.module.KeyNamer/>
     <VASSAL.build.module.PrototypesContainer>
-        <VASSAL.build.module.PrototypeDefinition description="" name="Prototype">+/null/delete;Delete;68,130;	piece;;;;/	null;36;32;;0</VASSAL.build.module.PrototypeDefinition>
+        <VASSAL.build.module.PrototypeDefinition description="" name="Prototype">+/null/delete;Delete;68,130;	markmoved;moved.gif;41;-5;Marked as moved;77,130;;false;Mark piece as moved;;Mark piece as unmoved;\	clone;Clone;67,130;\\	rotate;6;93,130;91,130;Rotate CW;Rotate CCW;;;;;;;;true\\\	piece;;;;/	false\	\\	0\\\	null;36;32;;0</VASSAL.build.module.PrototypeDefinition>
     </VASSAL.build.module.PrototypesContainer>
     <VASSAL.build.module.PieceWindow defaultWidth="0" hidden="false" hotkey="" icon="/images/counter.gif" scale="1.0" text="Pieces" tooltip="Show/Hide the null window">
         <VASSAL.build.widget.TabWidget>

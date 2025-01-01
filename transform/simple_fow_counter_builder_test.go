@@ -19,7 +19,7 @@ func TestToNewCounter(t *testing.T) {
 
 	t.Run("With Public Icon Path", func(t *testing.T) {
 		counter := &counters.Counter{
-			Extra: &counters.Extra{
+			Metadata: &counters.Metadata{
 				PublicIcon: &counters.Image{Path: "assets/binoculars.png", Scale: 1.5}},
 			Images: []counters.Image{
 				{

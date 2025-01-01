@@ -15,10 +15,10 @@ func (bc *StepLossBackCounterBuilder) ToNewCounter(counter *counters.Counter) (*
 		return counter, nil
 	}
 
-	if counter.Extra == nil {
-		counter.Extra = &counters.Extra{Side: "back"}
+	if counter.Metadata == nil {
+		counter.Metadata = &counters.Metadata{Side: "back"}
 	} else {
-		counter.Extra.Side += "back"
+		counter.Metadata.Side += "back"
 	}
 
 	// ensure the 'stripe' is the first image in the counter and everything else is on top of it
