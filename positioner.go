@@ -5,6 +5,26 @@ import (
 	"github.com/thehivecorporation/log"
 )
 
+const (
+	PositionCenter = iota
+	PositionTopLeft
+	PositionTopCenterLeft
+	PositionTopCenter
+	PositionTopCenterRight
+	PositionTopRight
+	PositionRightTop
+	PositionRight
+	PositionRightBottom
+	PositionBottomRight
+	PositionBottomCenterRight
+	PositionBottomCenter
+	PositionBottomCenterLeft
+	PositionBottomLeft
+	PositionLeftBottom
+	PositionLeft
+	PositionLeftTop
+)
+
 type Positioner struct{}
 
 func (p *Positioner) GetAnchorPointsAndMaxWidth(pos int, def *Settings) (float64, float64, float64, error) {

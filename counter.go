@@ -36,7 +36,7 @@ type Counter struct {
 
 	Images   Images    `json:"images,omitempty"`
 	Texts    Texts     `json:"texts,omitempty"`
-	Metadata *Metadata `json:"extra,omitempty"`
+	Metadata *Metadata `json:"metadata,omitempty"`
 
 	// Generate the following counter with 'back' suffix in its filename
 	Back *Counter `json:"back,omitempty"`
