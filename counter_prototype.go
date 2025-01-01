@@ -9,15 +9,15 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/pkg/errors"
-	"github.com/qdm12/reprint"
 	deepcopy "github.com/qdm12/reprint"
 )
 
 type CounterPrototype struct {
 	Counter
-	ImagePrototypes []ImagePrototype  `json:"image_prototypes,omitempty"`
-	TextPrototypes  []TextPrototype   `json:"text_prototypes,omitempty"`
-	Back            *CounterPrototype `json:"back,omitempty"`
+	ImagePrototypes []ImagePrototype       `json:"image_prototypes,omitempty"`
+	TextPrototypes  []TextPrototype        `json:"text_prototypes,omitempty"`
+	Back            *CounterPrototype      `json:"back,omitempty"`
+	Metadata        map[string]interface{} `json:"external,omitempty"`
 }
 
 type ImagePrototype struct {
@@ -44,7 +44,7 @@ func (p *CounterPrototype) ToCounters(filenamesInUse *sync.Map, sideName, protot
 	// then, using the resulting front counter, we apply the back prototype to it
 	for i := 0; i < length; i++ {
 		var newCounter Counter
-		if err := deepcopy.FromTo(p.Counter, &newCounter); err != nil {
+		if err = deepcopy.FromTo(p.Counter, &newCounter); err != nil {
 			return nil, err
 		}
 		newCounter.PrototypeName = prototypeName
@@ -86,7 +86,7 @@ func (p *CounterPrototype) applyPrototypes(newCounter *Counter, index int) error
 	if p.TextPrototypes != nil {
 		for _, textPrototype := range p.TextPrototypes {
 			originalText := Text{}
-			if err := reprint.FromTo(textPrototype.Text, &originalText); err != nil {
+			if err := deepcopy.FromTo(textPrototype.Text, &originalText); err != nil {
 				return err
 			}
 			originalText.String = textPrototype.StringList[index]
@@ -97,7 +97,7 @@ func (p *CounterPrototype) applyPrototypes(newCounter *Counter, index int) error
 	if p.ImagePrototypes != nil {
 		for _, imagePrototype := range p.ImagePrototypes {
 			originalImage := Image{}
-			if err := reprint.FromTo(imagePrototype.Image, &originalImage); err != nil {
+			if err := deepcopy.FromTo(imagePrototype.Image, &originalImage); err != nil {
 				return err
 			}
 			originalImage.Path = imagePrototype.PathList[index]
@@ -164,7 +164,7 @@ to the existing images and texts.
 */
 func mergeFrontAndBack(frontCounter *Counter, backProto *CounterPrototype, index int) (c Counter, err error) {
 	var backCounter Counter
-	if err = reprint.FromTo(backProto.Counter, &backCounter); err != nil {
+	if err = deepcopy.FromTo(backProto.Counter, &backCounter); err != nil {
 		return
 	}
 
@@ -185,7 +185,7 @@ func mergeFrontAndBack(frontCounter *Counter, backProto *CounterPrototype, index
 
 	for _, imageProto := range backProto.ImagePrototypes {
 		newImage := Image{}
-		if err = reprint.FromTo(imageProto.Image, &newImage); err != nil {
+		if err = deepcopy.FromTo(imageProto.Image, &newImage); err != nil {
 			return
 		}
 
@@ -195,7 +195,7 @@ func mergeFrontAndBack(frontCounter *Counter, backProto *CounterPrototype, index
 
 	for _, textProto := range backProto.TextPrototypes {
 		newText := Text{}
-		if err = reprint.FromTo(textProto.Text, &newText); err != nil {
+		if err = deepcopy.FromTo(textProto.Text, &newText); err != nil {
 			return
 		}
 
@@ -261,7 +261,7 @@ func cloneSlice[T any](ts []T) (res []T, err error) {
 
 	for i := range ts {
 		var newT T
-		if err = reprint.FromTo(ts[i], &newT); err != nil {
+		if err = deepcopy.FromTo(ts[i], &newT); err != nil {
 			return nil, fmt.Errorf("error cloning slice %w", err)
 		}
 		res = append(res, newT)

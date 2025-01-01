@@ -16,10 +16,12 @@ type CounterTemplate struct {
 	Rows    int `json:"rows,omitempty" default:"2" jsonschema_description:"Number of rows, required when creating tiled based sheets for printing or TTS"`
 	Columns int `json:"columns,omitempty" default:"2" jsonschema_description:"Number of columns, required when creating tiled based sheets for printing or TTS"`
 
-	DrawGuides       bool                          `json:"draw_guides,omitempty"`
-	Mode             string                        `json:"mode"`
-	OutputFolder     string                        `json:"output_folder" default:"output"`
-	Scaling          *float64                      `json:"scaling,omitempty"`
+	DrawGuides   bool     `json:"draw_guides,omitempty"`
+	Mode         string   `json:"mode"`
+	OutputFolder string   `json:"output_folder" default:"output"`
+	Scaling      *float64 `json:"scaling,omitempty"`
+
+	// TOOD: Move Vassal to Metadata
 	Vassal           VassalCounterTemplateSettings `json:"vassal,omitempty"`
 	WorkingDirectory string                        `json:"working_directory,omitempty"`
 
@@ -28,6 +30,7 @@ type CounterTemplate struct {
 
 	Counters   []Counter                   `json:"counters,omitempty"`
 	Prototypes map[string]CounterPrototype `json:"prototypes,omitempty"`
+	Metadata   map[string]interface{}      `json:"metadata,omitempty"`
 }
 
 type VassalCounterTemplateSettings struct {

@@ -31,16 +31,18 @@ var pieceSlotTemplate *template.Template
 type Counter struct {
 	Settings
 
+	// TODO: Move to metadata
 	SingleStep bool `json:"single_step,omitempty"`
 	Frame      bool `json:"frame,omitempty"`
 
-	Images   Images    `json:"images,omitempty"`
-	Texts    Texts     `json:"texts,omitempty"`
-	Metadata *Metadata `json:"metadata,omitempty"`
+	Images Images `json:"images,omitempty"`
+	Texts  Texts  `json:"texts,omitempty"`
 
-	// Generate the following counter with 'back' suffix in its filename
+	// Generate also the following counter with 'back' suffix in its filename
 	Back *Counter `json:"back,omitempty"`
 
+	Metadata *Metadata `json:"metadata,omitempty"`
+	// TODO: Move everything below to metadata
 	Filename      string     `json:"filename,omitempty"`
 	PrototypeName string     `json:"-"`
 	VassalPiece   *PieceSlot `json:"vassal,omitempty"`
@@ -52,13 +54,14 @@ type Counters []Counter
 type Metadata struct {
 	// PublicIcon in a FOW counter is the visible icon for the enemy. Imagine an icon for the back
 	// of a block in a Columbia game
-	CardImage          *Image `json:"card_image,omitempty"`
-	Cost               int    `json:"cost,omitempty"`
-	PublicIcon         *Image `json:"public_icon,omitempty"`
-	Side               string `json:"side,omitempty"`
-	SkipCardGeneration bool   `json:"skip_card_generation,omitempty"`
-	Title              string `json:"title,omitempty"`
-	TitlePosition      *int   `json:"title_position,omitempty"`
+	CardImage          *Image                 `json:"card_image,omitempty"`
+	Cost               int                    `json:"cost,omitempty"`
+	PublicIcon         *Image                 `json:"public_icon,omitempty"`
+	Side               string                 `json:"side,omitempty"`
+	SkipCardGeneration bool                   `json:"skip_card_generation,omitempty"`
+	Title              string                 `json:"title,omitempty"`
+	TitlePosition      *int                   `json:"title_position,omitempty"`
+	External           map[string]interface{} `json:"external,omitempty"`
 }
 
 type ImageExtraData struct {
