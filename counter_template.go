@@ -69,6 +69,30 @@ func ParseCounterTemplate(byt []byte, filenamesInUse *sync.Map) (t *CounterTempl
 
 	t.ApplyCounterWaterfallSettings()
 
+	// TODO: Scripting
+	if t.Metadata.Scripts != nil {
+		log.Info("Running Template scripts")
+		for _, script := range t.Metadata.Scripts {
+			err := t.runTemplateScript(script)
+			if err != nil {
+				return nil, errors.Wrap(err, "error trying to run script")
+			}
+		}
+	}
+	for i, counter := range t.Counters {
+		if counter.Metadata != nil {
+			scripts := make([]string, len(counter.Metadata.Scripts))
+			copy(scripts, counter.Metadata.Scripts)
+			for _, script := range scripts {
+				newCounter, err := counter.runCounterScript(script)
+				if err != nil {
+					return nil, errors.Wrap(err, "error trying to run script")
+				}
+				t.Counters[i] = *newCounter
+			}
+		}
+	}
+
 	return
 }
 
@@ -151,29 +175,6 @@ func (t *CounterTemplate) ParsePrototype() (*CounterTemplate, error) {
 	newTemplate, err = ParseCounterTemplate(byt, filenamesInUse)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not parse JSON file")
-	}
-
-	// TODO: Scripting
-	if newTemplate.Metadata.Scripts != nil {
-		for _, script := range newTemplate.Metadata.Scripts {
-			err := t.runTemplateScript(script)
-			if err != nil {
-				return nil, errors.Wrap(err, "error trying to run script")
-			}
-		}
-	}
-	for i, counter := range newTemplate.Counters {
-		if counter.Metadata != nil {
-			scripts := make([]string, len(counter.Metadata.Scripts))
-			copy(scripts, counter.Metadata.Scripts)
-			for _, script := range scripts {
-				newCounter, err := counter.runCounterScript(script)
-				if err != nil {
-					return nil, errors.Wrap(err, "error trying to run script")
-				}
-				newTemplate.Counters[i] = *newCounter
-			}
-		}
 	}
 
 	return newTemplate, nil

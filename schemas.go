@@ -21,6 +21,7 @@ func ValidateSchemaReader[S CounterTemplate | CardsTemplate](r io.Reader) error 
 func ValidateSchemaBytes[S CounterTemplate | CardsTemplate](docByt []byte) (err error) {
 	if bytes.Contains(docByt, []byte("\n")) {
 		docByt = bytes.ReplaceAll(docByt, []byte("\n"), []byte(""))
+		docByt = bytes.ReplaceAll(docByt, []byte("\r"), []byte(""))
 	}
 
 	reflector := new(jsonschema.Reflector)
