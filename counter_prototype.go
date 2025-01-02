@@ -14,10 +14,10 @@ import (
 
 type CounterPrototype struct {
 	Counter
-	ImagePrototypes []ImagePrototype       `json:"image_prototypes,omitempty"`
-	TextPrototypes  []TextPrototype        `json:"text_prototypes,omitempty"`
-	Back            *CounterPrototype      `json:"back,omitempty"`
-	Metadata        map[string]interface{} `json:"external,omitempty"`
+	ImagePrototypes []ImagePrototype  `json:"image_prototypes,omitempty"`
+	TextPrototypes  []TextPrototype   `json:"text_prototypes,omitempty"`
+	Back            *CounterPrototype `json:"back,omitempty"`
+	Metadata        Metadata          `json:"metadata,omitempty"`
 }
 
 type ImagePrototype struct {
@@ -48,6 +48,9 @@ func (p *CounterPrototype) ToCounters(filenamesInUse *sync.Map, sideName, protot
 			return nil, err
 		}
 		newCounter.PrototypeName = prototypeName
+		newCounter.Metadata = &Metadata{}
+		newCounter.Metadata.Scripts = make([]string, len(p.Metadata.Scripts))
+		copy(newCounter.Metadata.Scripts, p.Metadata.Scripts)
 
 		if err = p.applyPrototypes(&newCounter, i); err != nil {
 			return nil, err
@@ -170,6 +173,9 @@ func mergeFrontAndBack(frontCounter *Counter, backProto *CounterPrototype, index
 
 	backCounter.PrettyName = frontCounter.PrettyName + "_back"
 	backCounter.Filename = strings.TrimSuffix(frontCounter.Filename, path.Ext(frontCounter.Filename)) + "_back.png"
+	backCounter.Metadata = &Metadata{}
+	backCounter.Metadata.Scripts = make([]string, len(frontCounter.Metadata.Scripts))
+	copy(backCounter.Metadata.Scripts, frontCounter.Metadata.Scripts)
 
 	images, err := cloneSlice(frontCounter.Images)
 	if err != nil {

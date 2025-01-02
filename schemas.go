@@ -1,6 +1,7 @@
 package counters
 
 import (
+	"bytes"
 	"io"
 	"os"
 
@@ -17,7 +18,11 @@ func ValidateSchemaReader[S CounterTemplate | CardsTemplate](r io.Reader) error 
 	return ValidateSchemaBytes[S](byt)
 }
 
-func ValidateSchemaBytes[S CounterTemplate | CardsTemplate](docByt []byte) error {
+func ValidateSchemaBytes[S CounterTemplate | CardsTemplate](docByt []byte) (err error) {
+	if bytes.Contains(docByt, []byte("\n")) {
+		docByt = bytes.ReplaceAll(docByt, []byte("\n"), []byte(""))
+	}
+
 	reflector := new(jsonschema.Reflector)
 	counterTemplateSchemaMarshaller := reflector.Reflect(new(S))
 	schemaByt, err := counterTemplateSchemaMarshaller.MarshalJSON()
@@ -46,7 +51,7 @@ func ValidateSchemaAtPath[S CounterTemplate | CardsTemplate](inputPath string) e
 
 func validateResult(result *gojsonschema.Result) error {
 	if !result.Valid() {
-		err := errors.New("JSON file is not valid\n")
+		err := errors.New("JSON file is not valid")
 		for _, desc := range result.Errors() {
 			err = errors.Wrap(err, "\n"+desc.String())
 		}

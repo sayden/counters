@@ -13,6 +13,7 @@ import (
 	"dario.cat/mergo"
 	"github.com/fogleman/gg"
 	"github.com/pkg/errors"
+	"github.com/robertkrimen/otto"
 	"github.com/thehivecorporation/log"
 )
 
@@ -54,14 +55,15 @@ type Counters []Counter
 type Metadata struct {
 	// PublicIcon in a FOW counter is the visible icon for the enemy. Imagine an icon for the back
 	// of a block in a Columbia game
-	CardImage          *Image                 `json:"card_image,omitempty"`
-	Cost               int                    `json:"cost,omitempty"`
-	PublicIcon         *Image                 `json:"public_icon,omitempty"`
-	Side               string                 `json:"side,omitempty"`
-	SkipCardGeneration bool                   `json:"skip_card_generation,omitempty"`
-	Title              string                 `json:"title,omitempty"`
-	TitlePosition      *int                   `json:"title_position,omitempty"`
-	External           map[string]interface{} `json:"external,omitempty"`
+	CardImage          *Image         `json:"card_image,omitempty"`
+	Cost               int            `json:"cost,omitempty"`
+	PublicIcon         *Image         `json:"public_icon,omitempty"`
+	Side               string         `json:"side,omitempty"`
+	SkipCardGeneration bool           `json:"skip_card_generation,omitempty"`
+	Title              string         `json:"title,omitempty"`
+	TitlePosition      *int           `json:"title_position,omitempty"`
+	External           map[string]any `json:"external,omitempty"`
+	Scripts            []string       `json:"scripts,omitempty"`
 }
 
 type ImageExtraData struct {
@@ -88,6 +90,10 @@ func (c *Counter) GetTextInPosition(i int) string {
 // filenumber: CounterTemplate.PositionNumberForFilename. So it will always be fixed number
 // position: The position of the text in the counter (0-16)
 // suffix: A suffix on the file. Constant
+//
+// Result:
+//
+//	[sidename_][[Metadata.TitlePosition][_position text][_Metadata.Side][_Metadata.Title]][_PrototypeName][_filenumber][_suffix].png
 func (c *Counter) GenerateCounterFilename(sideName string, position int, filenamesInUse *sync.Map) {
 	if c.Filename != "" {
 		return
@@ -102,7 +108,8 @@ func (c *Counter) GenerateCounterFilename(sideName string, position int, filenam
 			name = c.GetTextInPosition(*c.Metadata.TitlePosition)
 		}
 		if name != "" {
-			b.WriteString(name + " ")
+			b.WriteString("_")
+			b.WriteString(name)
 		}
 		// This way, the positional based name will always be the first part of the filename
 		// while the manual title will come later. This is useful when using prototypes so that
@@ -110,22 +117,24 @@ func (c *Counter) GenerateCounterFilename(sideName string, position int, filenam
 		name = ""
 
 		if c.Metadata.Side != "" {
+			b.WriteString("_")
 			b.WriteString(c.Metadata.Side)
-			b.WriteString(" ")
 		}
 
 		if c.Metadata.Title != "" {
+			b.WriteString("_")
 			b.WriteString(c.Metadata.Title)
-			b.WriteString(" ")
 		}
 	}
 
 	if name != "" {
-		b.WriteString(name + " ")
+		b.WriteString("_")
+		b.WriteString(name)
 	}
 
 	if c.PrototypeName != "" {
-		b.WriteString(c.PrototypeName + " ")
+		b.WriteString("_")
+		b.WriteString(c.PrototypeName)
 	}
 
 	res := b.String()
@@ -155,6 +164,9 @@ func (c *Counter) GenerateCounterFilename(sideName string, position int, filenam
 	if res == "" {
 		res = fmt.Sprintf("%04d", filenumber)
 	}
+	res = strings.Trim(res, "_")
+	res = strings.TrimSpace(res)
+	res = strings.Trim(res, "_")
 	res = strings.TrimSpace(res)
 
 	filenamesInUse.Store(res, true)
@@ -286,7 +298,7 @@ func (c *Counter) mergeFrontAndBack() (*Counter, error) {
 
 	if c.PrettyName == "" {
 		byt, _ := json.MarshalIndent(c, "", "  ")
-		return nil, fmt.Errorf("PrettyName was empty for counter:\n%s\n", string(byt))
+		return nil, fmt.Errorf("prettyName was empty for counter:\n%s", string(byt))
 	}
 
 	c.Back.PrettyName = c.PrettyName + "_back"
@@ -296,4 +308,36 @@ func (c *Counter) mergeFrontAndBack() (*Counter, error) {
 	c.Back.Texts = mergeImagesOrTexts(c.Texts, c.Back.Texts)
 
 	return c.Back, nil
+}
+
+func (c *Counter) runCounterScript(script string) (*Counter, error) {
+	vm := otto.New()
+
+	byt, err := json.Marshal(c)
+	if err != nil {
+		return nil, fmt.Errorf("could not marshal counter to json: %w", err)
+	}
+
+	if err = vm.Set("counter", string(byt)); err != nil {
+		return nil, err
+	}
+
+	if _, err = vm.Run(script); err != nil {
+		return nil, fmt.Errorf("could not run script: %w", err)
+	}
+
+	val, err := vm.Get("output")
+	if err != nil {
+		return nil, fmt.Errorf("could not get output from script: %w", err)
+	}
+	if byt, err = val.MarshalJSON(); err != nil {
+		return nil, err
+	}
+
+	newCounter := &Counter{}
+	if err = json.Unmarshal(byt, newCounter); err != nil {
+		return nil, err
+	}
+
+	return newCounter, nil
 }

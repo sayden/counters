@@ -1,6 +1,7 @@
 package counters
 
 import (
+	"bytes"
 	"encoding/json"
 	"sort"
 	"sync"
@@ -30,7 +31,12 @@ type CounterTemplate struct {
 
 	Counters   []Counter                   `json:"counters,omitempty"`
 	Prototypes map[string]CounterPrototype `json:"prototypes,omitempty"`
-	Metadata   map[string]interface{}      `json:"metadata,omitempty"`
+	Metadata   CounterTemplateMetadata     `json:"metadata,omitempty"`
+}
+
+type CounterTemplateMetadata struct {
+	External map[string]any `json:"external,omitempty"`
+	Scripts  []string       `json:"scripts,omitempty"`
 }
 
 type VassalCounterTemplateSettings struct {
@@ -43,6 +49,10 @@ type VassalCounterTemplateSettings struct {
 // ParseCounterTemplate reads a JSON file and parses it into a CounterTemplate after applying it some default settings (if not
 // present in the file)
 func ParseCounterTemplate(byt []byte, filenamesInUse *sync.Map) (t *CounterTemplate, err error) {
+	if bytes.Contains(byt, []byte("\n")) {
+		byt = bytes.ReplaceAll(byt, []byte("\n"), []byte(""))
+	}
+
 	if err = ValidateSchemaBytes[CounterTemplate](byt); err != nil {
 		return nil, errors.Wrap(err, "JSON file is not valid")
 	}
@@ -143,77 +153,100 @@ func (t *CounterTemplate) ParsePrototype() (*CounterTemplate, error) {
 		return nil, errors.Wrap(err, "could not parse JSON file")
 	}
 
+	// TODO: Scripting
+	if newTemplate.Metadata.Scripts != nil {
+		for _, script := range newTemplate.Metadata.Scripts {
+			err := t.runTemplateScript(script)
+			if err != nil {
+				return nil, errors.Wrap(err, "error trying to run script")
+			}
+		}
+	}
+	for i, counter := range newTemplate.Counters {
+		if counter.Metadata != nil {
+			scripts := make([]string, len(counter.Metadata.Scripts))
+			copy(scripts, counter.Metadata.Scripts)
+			for _, script := range scripts {
+				newCounter, err := counter.runCounterScript(script)
+				if err != nil {
+					return nil, errors.Wrap(err, "error trying to run script")
+				}
+				newTemplate.Counters[i] = *newCounter
+			}
+		}
+	}
+
 	return newTemplate, nil
 }
 
 func (t *CounterTemplate) ExpandPrototypeCounterTemplate(filenamesInUse *sync.Map) (*CounterTemplate, error) {
+	total := len(t.Counters)
+	for i := 0; i < total; i++ {
+		counter := t.Counters[i]
+		if counter.Filename == "" {
+			t.Counters[i].GenerateCounterFilename(t.Vassal.SideName, t.PositionNumberForFilename, filenamesInUse)
+			// t.Counters[i].Filename = counter.Filename
+		}
+
+		if counter.Back != nil {
+			backCounter, err := t.Counters[i].mergeFrontAndBack()
+			if err != nil {
+				return nil, err
+			}
+
+			t.Counters = append(t.Counters, *backCounter)
+			// t.Counters[i].Back = nil
+		}
+
+		if t.Vassal.SideName != "" {
+			err := t.Counters[i].ToVassal(t.Vassal.SideName)
+			if err != nil {
+				log.Warn("could not create vassal piece from counter", err)
+			}
+		}
+	}
+
+	if t.Prototypes != nil {
+		if t.Counters == nil {
+			t.Counters = make([]Counter, 0)
+		}
+
+		// sort prototypes by name, to ensure consistent output filenames this is a small
+		// inconvenience, because iterating over maps in Go returns keys in random order
+		names := make([]string, 0, len(t.Prototypes))
+		for name := range t.Prototypes {
+			names = append(names, name)
+		}
+		sort.Strings(names)
+
+		for _, prototypeName := range names {
+			prototype := t.Prototypes[prototypeName]
+
+			cts, err := prototype.ToCounters(filenamesInUse, t.Vassal.SideName, prototypeName, t.PositionNumberForFilename)
+			if err != nil {
+				return nil, err
+			}
+
+			t.Counters = append(t.Counters, cts...)
+		}
+
+		t.Prototypes = nil
+	}
+
 	if t.Counters != nil {
 		total := len(t.Counters)
 		for i := 0; i < total; i++ {
 			counter := t.Counters[i]
 			if counter.Filename == "" {
-				t.Counters[i].GenerateCounterFilename(t.Vassal.SideName, t.PositionNumberForFilename, filenamesInUse)
-				// t.Counters[i].Filename = counter.Filename
-			}
-
-			if counter.Back != nil {
-				backCounter, err := t.Counters[i].mergeFrontAndBack()
-				if err != nil {
-					return nil, err
-				}
-
-				t.Counters = append(t.Counters, *backCounter)
-				// t.Counters[i].Back = nil
-			}
-
-			if t.Vassal.SideName != "" {
-				err := t.Counters[i].ToVassal(t.Vassal.SideName)
-				if err != nil {
-					log.Warn("could not create vassal piece from counter", err)
-				}
+				counter.GenerateCounterFilename(t.Vassal.SideName, t.PositionNumberForFilename, filenamesInUse)
+				t.Counters[i].Filename = counter.Filename
 			}
 		}
-
-		// JSON counters to Counters, check Prototype in CounterTemplate
-		if t.Prototypes != nil {
-			if t.Counters == nil {
-				t.Counters = make([]Counter, 0)
-			}
-
-			// sort prototypes by name, to ensure consistent output filenames this is a small
-			// inconvenience, because iterating over maps in Go returns keys in random order
-			names := make([]string, 0, len(t.Prototypes))
-			for name := range t.Prototypes {
-				names = append(names, name)
-			}
-			sort.Strings(names)
-
-			for _, prototypeName := range names {
-				prototype := t.Prototypes[prototypeName]
-
-				cts, err := prototype.ToCounters(filenamesInUse, t.Vassal.SideName, prototypeName, t.PositionNumberForFilename)
-				if err != nil {
-					return nil, err
-				}
-
-				t.Counters = append(t.Counters, cts...)
-			}
-
-			t.Prototypes = nil
-		}
-
-		if t.Counters != nil {
-			total := len(t.Counters)
-			for i := 0; i < total; i++ {
-				counter := t.Counters[i]
-				if counter.Filename == "" {
-					counter.GenerateCounterFilename(t.Vassal.SideName, t.PositionNumberForFilename, filenamesInUse)
-					t.Counters[i].Filename = counter.Filename
-				}
-			}
-		}
-
 	}
 
 	return t, nil
+}
+
+func (t *CounterTemplate) runTemplateScript(script string) error {
+	return nil
 }
