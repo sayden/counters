@@ -80,16 +80,14 @@ func ParseCounterTemplate(byt []byte, filenamesInUse *sync.Map) (t *CounterTempl
 		}
 	}
 	for i, counter := range t.Counters {
-		if counter.Metadata != nil {
-			scripts := make([]string, len(counter.Metadata.Scripts))
-			copy(scripts, counter.Metadata.Scripts)
-			for _, script := range scripts {
-				newCounter, err := counter.runCounterScript(script)
-				if err != nil {
-					return nil, errors.Wrap(err, "error trying to run script")
-				}
-				t.Counters[i] = *newCounter
+		scripts := make([]string, len(counter.Metadata.Scripts))
+		copy(scripts, counter.Metadata.Scripts)
+		for _, script := range scripts {
+			newCounter, err := counter.runCounterScript(script)
+			if err != nil {
+				return nil, errors.Wrap(err, "error trying to run script")
 			}
+			t.Counters[i] = *newCounter
 		}
 	}
 
@@ -225,7 +223,7 @@ func (t *CounterTemplate) ExpandPrototypeCounterTemplate(filenamesInUse *sync.Ma
 
 			cts, err := prototype.ToCounters(filenamesInUse, t.Vassal.SideName, prototypeName, t.PositionNumberForFilename)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "could not create a counter list from a prototype")
 			}
 
 			t.Counters = append(t.Counters, cts...)

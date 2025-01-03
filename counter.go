@@ -42,7 +42,7 @@ type Counter struct {
 	// Generate also the following counter with 'back' suffix in its filename
 	Back *Counter `json:"back,omitempty"`
 
-	Metadata *Metadata `json:"metadata,omitempty"`
+	Metadata Metadata `json:"metadata,omitempty"`
 	// TODO: Move everything below to metadata
 	Filename      string     `json:"filename,omitempty"`
 	PrototypeName string     `json:"-"`
@@ -103,28 +103,26 @@ func (c *Counter) GenerateCounterFilename(sideName string, position int, filenam
 	var name string
 	name = c.GetTextInPosition(position)
 
-	if c.Metadata != nil {
-		if c.Metadata.TitlePosition != nil && *c.Metadata.TitlePosition != position {
-			name = c.GetTextInPosition(*c.Metadata.TitlePosition)
-		}
-		if name != "" {
-			b.WriteString("_")
-			b.WriteString(name)
-		}
-		// This way, the positional based name will always be the first part of the filename
-		// while the manual title will come later. This is useful when using prototypes so that
-		// counters with the same positional name are close together in the destination folder
-		name = ""
+	if c.Metadata.TitlePosition != nil && *c.Metadata.TitlePosition != position {
+		name = c.GetTextInPosition(*c.Metadata.TitlePosition)
+	}
+	if name != "" {
+		b.WriteString("_")
+		b.WriteString(name)
+	}
+	// This way, the positional based name will always be the first part of the filename
+	// while the manual title will come later. This is useful when using prototypes so that
+	// counters with the same positional name are close together in the destination folder
+	name = ""
 
-		if c.Metadata.Side != "" {
-			b.WriteString("_")
-			b.WriteString(c.Metadata.Side)
-		}
+	if c.Metadata.Side != "" {
+		b.WriteString("_")
+		b.WriteString(c.Metadata.Side)
+	}
 
-		if c.Metadata.Title != "" {
-			b.WriteString("_")
-			b.WriteString(c.Metadata.Title)
-		}
+	if c.Metadata.Title != "" {
+		b.WriteString("_")
+		b.WriteString(c.Metadata.Title)
 	}
 
 	if name != "" {

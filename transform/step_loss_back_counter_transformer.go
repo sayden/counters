@@ -15,8 +15,8 @@ func (bc *StepLossBackCounterBuilder) ToNewCounter(counter *counters.Counter) (*
 		return counter, nil
 	}
 
-	if counter.Metadata == nil {
-		counter.Metadata = &counters.Metadata{Side: "back"}
+	if counter.Metadata.Side == "" {
+		counter.Metadata.Side = "back"
 	} else {
 		counter.Metadata.Side += "back"
 	}

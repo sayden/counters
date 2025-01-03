@@ -48,7 +48,6 @@ func (p *CounterPrototype) ToCounters(filenamesInUse *sync.Map, sideName, protot
 			return nil, err
 		}
 		newCounter.PrototypeName = prototypeName
-		newCounter.Metadata = &Metadata{}
 		newCounter.Metadata.Scripts = make([]string, len(p.Metadata.Scripts))
 		copy(newCounter.Metadata.Scripts, p.Metadata.Scripts)
 
@@ -170,12 +169,14 @@ func mergeFrontAndBack(frontCounter *Counter, backProto *CounterPrototype, index
 	if err = deepcopy.FromTo(backProto.Counter, &backCounter); err != nil {
 		return
 	}
+	if err = deepcopy.FromTo(backProto.Metadata, &backCounter.Metadata); err != nil {
+		return
+	}
 
 	backCounter.PrettyName = frontCounter.PrettyName + "_back"
 	backCounter.Filename = strings.TrimSuffix(frontCounter.Filename, path.Ext(frontCounter.Filename)) + "_back.png"
-	backCounter.Metadata = &Metadata{}
-	backCounter.Metadata.Scripts = make([]string, len(frontCounter.Metadata.Scripts))
-	copy(backCounter.Metadata.Scripts, frontCounter.Metadata.Scripts)
+	// backCounter.Metadata.Scripts = make([]string, len(frontCounter.Metadata.Scripts))
+	// copy(backCounter.Metadata.Scripts, frontCounter.Metadata.Scripts)
 
 	images, err := cloneSlice(frontCounter.Images)
 	if err != nil {

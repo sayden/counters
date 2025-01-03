@@ -28,7 +28,7 @@ func (cfg *CountersToCardsConfig) CountersToCards() (*counters.CardsTemplate, er
 
 	// INPUT
 	for _, counter := range cfg.CountersTemplate.Counters {
-		if counter.Metadata != nil && counter.Metadata.SkipCardGeneration {
+		if counter.Metadata.SkipCardGeneration {
 			// skip card generation
 			continue
 		}
