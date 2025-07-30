@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Counters Desktop
+Exec=/home/mcastro/.local/bin/counters-desktop
+Comment=
+Terminal=false
+Icon=/home/mcastro/.local/share/icons/hicolor/1024x1024/apps/counters-desktop.png
+Type=Application
+StartupWMClass=counters-desktop
+

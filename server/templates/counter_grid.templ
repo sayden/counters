@@ -1,6 +1,8 @@
-package main
+package templates
 
-templ Counters(res response) {
+import "github.com/sayden/counters/server"
+
+templ Counters(res server.CounterImages) {
 	for _, counter := range res {
 		<div>
 			<img id={ counter.Id } class="rounded-md m-2" src={ counter.CounterImage } alt={ counter.Id }/>

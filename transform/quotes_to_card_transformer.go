@@ -66,7 +66,8 @@ func (w *QuotesToCardTransformer) getCardAreas(cc *counters.Counter, q counters.
 
 	images, texts := w.getDownAreaCounterItems(cc, q)
 	return []counters.Counter{
-		*cc, {
+		*cc,
+		counters.Counter{
 			Images: images,
 			Texts:  texts,
 			Frame:  true,

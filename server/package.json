@@ -3,19 +3,33 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build-css": "npx tailwindcss -i ./tailwind.css -o ./static/main.css --watch"
+    "build-css": "npx tailwindcss -i ./tailwind.css -o ./cmd/static/main.css --watch",
+    "templates": "templ generate --path ./templates && mv templates/*templ.go templates/generated",
+    "esbuild": "./node_modules/esbuild/bin/esbuild --bundle js/index.tsx --outdir=cmd/static --format=esm --jsx=automatic --minify",
+    "esbuild-watch": "./node_modules/esbuild/bin/esbuild --bundle js/index.tsx --outdir=cmd/static --format=esm --jsx=automatic --watch --minify",
+    "sqlc": "sqlc generate",
+    "server": "air"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "@codemirror/lang-json": "^6.0.2",
+    "@heroicons/react": "^2.2.0",
+    "@microsoft/fetch-event-source": "^2.0.1",
+    "@tailwindcss/vite": "^4.1.11",
+    "@tanstack/react-table": "^8.21.3",
+    "daisyui": "^5.0.46",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
+    "@types/react-dom": "^19.1.6",
     "autoprefixer": "^10.4.20",
+    "esbuild": "0.25.8",
     "postcss": "^8.4.47",
-    "tailwindcss": "^3.4.14"
+    "tailwindcss": "^4.1.11",
+    "vite": "^7.0.6"
   }
 }

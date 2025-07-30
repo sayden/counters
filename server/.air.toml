@@ -1,9 +1,8 @@
 [build]
-  bin = "./tmp/main"
-  cmd = "go build -o ./tmp/main ."
-  pre_cmd = [ "templ generate" ]
-  include_ext = ["go", "tpl", "templ"]
+  cmd = "go run ./cmd"
+  include_ext = ["go"]
   exclude_file = ["*_templ.go"]
-  exclude_dir = ["vendor", "node_modules", "tmp"]
-  include_dir = ["../"]
+  exclude_dir = ["vendor", "node_modules", "tmp", "./cmd/static", "./templates/generated"]
+  include_dir = ["./cmd/"]
+  include_file = ["./data.go", "./cmd/**/*.go"]
   silent = false

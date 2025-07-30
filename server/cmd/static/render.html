@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Counter visualizer</title>
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/htmx-ext-sse@2.2.2/sse.js"></script>
+    <link rel="stylesheet" href="main.css" type="text/css" />
+  </head>
+  <body>
+    <div class="container" hx-ext="sse" sse-connect="/api/sse">
+      <div class="grid grid-cols-8 p-2 gap-4" id="grid" hx-get="/state" hx-trigger="sse:Grid"></div>
+    <div>
+  </body>
+</html>

@@ -36,3 +36,10 @@ server/tmp
 .vscode
 
 vassal_modules
+/server/bun.lockb
+/server/cmd/static/index.js
+/server/desktop/frontend/bun.lockb
+/server/desktop/frontend/package-lock.json
+/server/desktop/frontend/wailsjs/go/main/App.d.ts
+/server/desktop/frontend/wailsjs/go/main/App.js
+*_templ.go

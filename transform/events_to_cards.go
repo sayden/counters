@@ -89,9 +89,6 @@ func EventsToCards(cfg *EventsToCardsConfig) *counters.CardsTemplate {
 		Mode:       "tiles",
 		OutputPath: cfg.GeneratedImageName,
 		Cards:      cards,
-		// Extra: counters.Extra{
-		// 	BackImage: cfg.BackImageFile,
-		// },
 	}
 
 	return &cardTemplate
