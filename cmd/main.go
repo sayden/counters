@@ -18,6 +18,7 @@ var Cli struct {
 	GenerateTemplate GenerateTemplate `cmd:"" help:"Generates a new counter template file with default values"`
 	CheckTemplate    CheckTemplate    `cmd:"" help:"Check if a JSON file is a valid counter template"`
 	Tilemap          Tilemap          `cmd:"" help:"Generate a tilemap"`
+	TTS              TTS              `cmd:"" help:"Generate a Tabletop Simulator Lua load script from a folder with images"`
 }
 
 func main() {

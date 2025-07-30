@@ -17,6 +17,11 @@ type Card struct {
 	Images Images    `json:"images,omitempty"`
 }
 
+type CardPrototype struct {
+	Card
+	Areas []CounterPrototype `json:"areas,omitempty"`
+}
+
 func (c *Card) Image(template *CardsTemplate) (image.Image, error) {
 	cardCanvas, err := c.ToCanvas(template)
 	if err != nil {

@@ -13,7 +13,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func ReadMarkupFile(markupFilepath string, destination interface{}) error {
+func ReadMarkupFile(markupFilepath string, destination any) error {
 	extension := filepath.Ext(markupFilepath)
 
 	data, err := os.ReadFile(markupFilepath)
@@ -55,10 +55,11 @@ func FilenameExistsInFolder(filename, folder string) bool {
 }
 
 // GetFilenamesForPath returns every path+filename found in `path`
+// Deprecated: use `ListFiles` instead. This function only works with relative paths
 func GetFilenamesForPath(path string) ([]string, error) {
 	rootPath, err := os.Getwd()
 	if err != nil {
-		panic(err)
+		return nil, errors.Wrap(err, "could not get current working directory")
 	}
 
 	images := make([]string, 0)
@@ -83,6 +84,23 @@ func GetFilenamesForPath(path string) ([]string, error) {
 	}
 
 	return images, nil
+}
+
+// ListFiles returns all filenames in the provided directory as a string slice.
+// Does not recurse into subdirectories.
+func ListFiles(dir string) ([]string, error) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	var filenames []string
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			filenames = append(filenames, entry.Name())
+		}
+	}
+	return filenames, nil
 }
 
 // CopyFile copies a file from src to dst. If dst does not exist, it will be created.

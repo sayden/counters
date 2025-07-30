@@ -79,6 +79,7 @@ func ParseCounterTemplate(byt []byte, filenamesInUse *sync.Map) (t *CounterTempl
 			}
 		}
 	}
+
 	for i, counter := range t.Counters {
 		scripts := make([]string, len(counter.Metadata.Scripts))
 		copy(scripts, counter.Metadata.Scripts)
@@ -194,7 +195,7 @@ func (t *CounterTemplate) ExpandPrototypeCounterTemplate(filenamesInUse *sync.Ma
 			}
 
 			t.Counters = append(t.Counters, *backCounter)
-			// t.Counters[i].Back = nil
+			t.Counters[i].Back = nil
 		}
 
 		if t.Vassal.SideName != "" {
@@ -240,6 +241,28 @@ func (t *CounterTemplate) ExpandPrototypeCounterTemplate(filenamesInUse *sync.Ma
 				counter.GenerateCounterFilename(t.Vassal.SideName, t.PositionNumberForFilename, filenamesInUse)
 				t.Counters[i].Filename = counter.Filename
 			}
+		}
+	}
+
+	// TODO: Scripting
+	if t.Metadata.Scripts != nil {
+		log.Info("Running Template scripts")
+		for _, script := range t.Metadata.Scripts {
+			err := t.runTemplateScript(script)
+			if err != nil {
+				return nil, errors.Wrap(err, "error trying to run script")
+			}
+		}
+	}
+	for i, counter := range t.Counters {
+		scripts := make([]string, len(counter.Metadata.Scripts))
+		copy(scripts, counter.Metadata.Scripts)
+		for _, script := range scripts {
+			newCounter, err := counter.runCounterScript(script)
+			if err != nil {
+				return nil, errors.Wrap(err, "error trying to run script")
+			}
+			t.Counters[i] = *newCounter
 		}
 	}
 

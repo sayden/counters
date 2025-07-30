@@ -87,12 +87,12 @@ func ReadCSVCounters(filepath string) (*counters.CounterTemplate, error) {
 		PositionNumberForFilename: 3,
 	}
 
-	template.Settings.Width = 50
-	template.Settings.Height = 50
-	template.Settings.FontHeight = 16
-	template.Settings.Margins = floatP(2)
-	template.Settings.FontColor = color.White
-	template.Settings.ImageScaling = counters.IMAGE_SCALING_FIT_NONE
+	template.Width = 50
+	template.Height = 50
+	template.FontHeight = 16
+	template.Margins = floatP(2)
+	template.FontColor = color.White
+	template.ImageScaling = counters.IMAGE_SCALING_FIT_NONE
 
 	if err = template.EnrichTemplate(); err != nil {
 		return nil, errors.Wrap(err, "could not enrich template")
@@ -127,7 +127,7 @@ func ReadCSVCards(f io.Reader, template *counters.CardsTemplate) (*counters.Card
 		// skip leftmost column (multiplier) by now
 		for i, col := range cols[1:] {
 			if i == 0 && headTitles[1] == "bg_color" {
-				card.Settings.BackgroundColor = stringP(col)
+				card.BackgroundColor = stringP(col)
 				continue
 			}
 
@@ -151,7 +151,7 @@ func ReadCSVCards(f io.Reader, template *counters.CardsTemplate) (*counters.Card
 			return nil, err
 		}
 
-		for i := 0; i < multiplier; i++ {
+		for range multiplier {
 			cards = append(cards, card)
 		}
 	}

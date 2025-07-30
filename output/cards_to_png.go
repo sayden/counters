@@ -39,8 +39,8 @@ func CardsToPNG(template *counters.CardsTemplate) error {
 		// })
 
 	processing:
-		for row := 0; row < rows; row++ {
-			for col := 0; col < columns; col++ {
+		for row := range rows {
+			for col := range columns {
 				if currentIndex >= len(cards) {
 					break processing
 				}
@@ -50,13 +50,17 @@ func CardsToPNG(template *counters.CardsTemplate) error {
 				if err != nil {
 					return errors.Wrap(err, "error trying to create card canvas")
 				}
+				if err = cardCanvas.SavePNG(fmt.Sprintf("/tmp/%d.png", currentIndex)); err != nil {
+					panic(err)
+				}
+
 				sheet.DrawImage(cardCanvas.Image(), col*card.Width, row*card.Height)
 				// if err := cardProc.processCard(sheet, card, col, row); err != nil {
 				// 	return errors.Wrap(err, "error trying to process card")
 				// }
 				*card.Multiplier--
 				cardsGenerated++
-				if *card.Multiplier != 0 {
+				if *card.Multiplier > 0 {
 					continue
 				}
 				currentIndex++

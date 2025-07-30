@@ -43,10 +43,11 @@ type Counter struct {
 	Back *Counter `json:"back,omitempty"`
 
 	Metadata Metadata `json:"metadata,omitempty"`
+
 	// TODO: Move everything below to metadata
 	Filename      string     `json:"filename,omitempty"`
 	PrototypeName string     `json:"-"`
-	VassalPiece   *PieceSlot `json:"vassal,omitempty"`
+	VassalPiece   *PieceSlot `json:"-"`
 }
 
 type Counters []Counter
@@ -64,6 +65,7 @@ type Metadata struct {
 	TitlePosition      *int           `json:"title_position,omitempty"`
 	External           map[string]any `json:"external,omitempty"`
 	Scripts            []string       `json:"scripts,omitempty"`
+	Ordering           int            `json:"ordering,omitempty"`
 }
 
 type ImageExtraData struct {
@@ -94,9 +96,9 @@ func (c *Counter) GetTextInPosition(i int) string {
 // Result:
 //
 //	[sidename_][[Metadata.TitlePosition][_position text][_Metadata.Side][_Metadata.Title]][_PrototypeName][_filenumber][_suffix].png
-func (c *Counter) GenerateCounterFilename(sideName string, position int, filenamesInUse *sync.Map) {
+func (c *Counter) GenerateCounterFilename(sideName string, position int, filenamesInUse *sync.Map) string {
 	if c.Filename != "" {
-		return
+		return c.Filename
 	}
 
 	var b strings.Builder
@@ -137,6 +139,9 @@ func (c *Counter) GenerateCounterFilename(sideName string, position int, filenam
 
 	res := b.String()
 
+	res = strings.Trim(res, "_")
+	res = strings.TrimSpace(res)
+	res = strings.Trim(res, "_")
 	res = strings.TrimSpace(res)
 
 	c.PrettyName = res
@@ -171,6 +176,8 @@ func (c *Counter) GenerateCounterFilename(sideName string, position int, filenam
 
 	res += ".png"
 	c.Filename = res
+
+	return res
 }
 
 func (c *Counter) Canvas(withGuides bool) (*gg.Context, error) {
@@ -213,7 +220,6 @@ func (c *Counter) Canvas(withGuides bool) (*gg.Context, error) {
 }
 
 func (c *Counter) EncodeCounter(w io.Writer, drawGuides bool) error {
-
 	counterCanvas, err := c.Canvas(drawGuides)
 	if err != nil {
 		return err

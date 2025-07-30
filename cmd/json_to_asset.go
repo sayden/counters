@@ -19,7 +19,12 @@ func jsonToCards() (err error) {
 		cardsTemplate.OutputPath = Cli.Assets.OutputPath
 	}
 
-	return output.CardsToPNG(cardsTemplate)
+	newTemplate, err := cardsTemplate.ParsePrototype()
+	if err != nil {
+		return errors.Wrap(err, "error parsing prototyped template")
+	}
+
+	return output.CardsToPNG(newTemplate)
 }
 
 func jsonToAsset(inputPath, outputPath string) (err error) {
