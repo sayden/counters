@@ -1,20 +1,18 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-
+// Wails
 import { GetImage } from "../../../wailsjs/go/main/App";
 
+// Components
 import Header from '../../components/Header';
 import CodeEditor from './CodeEditor';
 import Preview from './Preview';
-import CopyToClipboardButton from '../../components/CopyToClipboard';
 
 export default function Builder() {
   const [code, setCode] = useState(``);
 
-  // const [code, setCode] = useState('{}');
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [imageSrc, setImageSrc] = useState<string>("");
-  const [scale, setScale] = useState(200);
 
   useEffect(() => {
     if (timeoutRef.current) {
@@ -30,16 +28,23 @@ export default function Builder() {
   }, [code])
 
   return (
-    <div className='h-screen w-screen overflow-hidden'>
+    <div style={{ height: "100vh", width: "100vw", overflow: "hidden" }}>
+
       <Header />
-      <div className='flex flex-row h-full'>
-        <div className='m-2 w-1/2 h-full overflow-auto overscroll-contain bg-gray-800'>
+
+      <div style={{ display: "flex", flex: "row", height: "100%" }}>
+
+        <div
+          style={{ width: "50%", height: "100%", overflow: "auto", overscrollBehavior: "contain" }}>
           <CodeEditor code={code} setCode={setCode} />
         </div>
-        <div className='flex flex-col m-2 w-1/2 h-[500px] items-center'>
+
+        <div style={{ display: "flex", flex: "col", width: "50%", height: "50%", alignItems: "center" }}>
           <Preview imageSrc={imageSrc} />
         </div>
+
       </div>
+
     </div>
   )
 }

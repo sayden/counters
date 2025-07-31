@@ -1,3 +1,15 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@layer base, utils, components;
+
+@import "@webtui/css";
+@import "@webtui/css/base.css";
+
+/* Utils */
+@import "@webtui/css/utils/box.css";
+
+/* Components */
+@import "@webtui/css/components/button.css";
+@import "@webtui/css/components/typography.css";
+@import "@webtui/css/components/input.css";
+
+@import '@webtui/theme-catppuccin';
+/* @import '@webtui/theme-vitesse'; */

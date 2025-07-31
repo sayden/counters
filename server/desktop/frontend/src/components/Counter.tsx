@@ -4,18 +4,19 @@ export interface CounterData {
 	filename: string
 }
 
-export default function Counter({
-	counter
-}: {
-	counter: CounterData,
-}) {
+export default function Counter({ counter }: { counter: CounterData }) {
 	return (
-		<div className='card card-xs card-border bg-base-200 shadow-sm'>
-			<figure className="p-2">
-				<img id={counter.id} className="rounded-md" src={counter.filename} alt={counter.id} />
+		<div className='counter'>
+			<figure
+				style={{ display: "flex", justifyContent: "center" }}>
+				<img
+					id={counter.id}
+					style={{ borderRadius: "1ch" }}
+					src={counter.filename}
+					alt={counter.id} />
 			</figure>
-			<div className="card-body">
-				<p className="text-xs/4 text-gray-200">{counter.pretty_name}</p>
+			<div>
+				<p className="counter-text">{counter.pretty_name}</p>
 			</div>
 		</div>
 	)

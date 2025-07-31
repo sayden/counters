@@ -11,7 +11,7 @@ import Header from './Header';
 
 // React component
 export default function App() {
-    const [path, setPath] = useState<string>("No file selected");
+    const [path, setPath] = useState<string>(" No file selected ");
     const [counters, setCounters] = useState<server.CounterImage[]>([]);
     const [filter, setFilter] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
@@ -42,21 +42,17 @@ export default function App() {
     // });
 
     const content = () => {
-        if (path === "No file selected") {
-            return (
-                <h1 className="flex-initial p-2 mx-2 text-2xl content-center text-center">
-                    Select a file to visualize
-                </h1>
-            )
+        if (path === " No file selected ") {
+            return (<h1>Select a file to visualize</h1>)
         }
 
         if (loading) {
             const fileMsg = path === "" ? "Select file..." : `Loading file "${path}"`;
             return (
-                <h1 className="flex flex-col p-2 m-2 text-2xl items-center">
-                    <div className='m-2'>{fileMsg}</div>
+                <h1>
+                    <p>{fileMsg}</p>
                     <progress
-                        className="progress m-2 w-1/2"
+                        className="progress"
                         value={progress}
                         max="100" />
                 </h1>
@@ -99,7 +95,7 @@ export default function App() {
     });
 
     return (
-        <div className='flex flex-col h-screen'>
+        <div>
             <Header
                 filter={filter}
                 setFilter={setFilter}
