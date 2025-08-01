@@ -28,21 +28,18 @@ export default function Builder() {
   }, [code])
 
   return (
-    <div style={{ height: "100vh", width: "100vw", overflow: "hidden" }}>
+    <div>
 
       <Header />
 
-      <div style={{ display: "flex", flex: "row", height: "100%" }}>
-
-        <div
-          style={{ width: "50%", height: "100%", overflow: "auto", overscrollBehavior: "contain" }}>
+      <div className="flex flex-row h-full">
+        <div className="min-w-1/2 h-full overflow-auto overscroll-contain">
           <CodeEditor code={code} setCode={setCode} />
         </div>
 
-        <div style={{ display: "flex", flex: "col", width: "50%", height: "50%", alignItems: "center" }}>
+        <div className="flex flex-col w-1/2 h-1/2 items-center">
           <Preview imageSrc={imageSrc} />
         </div>
-
       </div>
 
     </div>

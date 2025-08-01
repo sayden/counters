@@ -3,17 +3,17 @@ export default function InputFilter({ filter, setFilter }: {
 	setFilter: (filter: string) => void,
 }) {
 	return (
-		<div className="nav-input-filter">
+		<div className="flex grow-1 w-auto justify-between items-center">
 			<input
 				type="text"
 				placeholder="Counter name"
-				style={{ marginLeft: "1ch", flexGrow: 1 }}
+				className="ml-[1ch] grow-1"
 				value={filter}
 				onChange={(e) => setFilter(e.target.value)} />
 
 			<button
 				variant-="blue"
-				style={{ minWidth: "15ch" }}
+				className="min-w-[15ch] ml-[1ch]"
 				onClick={() => setFilter("")}>
 				Reset filter
 			</button>

@@ -20,7 +20,7 @@ export default function Header({
 
 			<HeaderComponent />
 
-			<div box-="square" className="topbar">
+			<div box-="square" className="flex p-[3ch]">
 				<FileSelector
 					path={path}
 					showFolderDialog={showFolderDialog} />

@@ -6,13 +6,13 @@ export default function FileSelector({
 	showFolderDialog: () => void,
 }) {
 	return (
-		<div className="nav-file-selector">
+		<div className="max-w-1/2 flex items-center grow-1 justify-between gap-[1ch]">
 
-			<p style={{ flexGrow: 1 }}>{path}</p>
+			<p className="grow-1">{path}</p>
 
 			<button
 				variant-="blue"
-				style={{ marginLeft: "2ch", minWidth: "15ch" }}
+				className="ml-[2ch] min-w-[15ch]"
 				onClick={showFolderDialog}>
 				Select File
 			</button>

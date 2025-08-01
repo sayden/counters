@@ -2,9 +2,8 @@ import { useRef, useCallback } from 'react';
 
 export default function Preview({ imageSrc }: { imageSrc: string }) {
   return (
-    <div id="preview" className='flex flex-row h-[500px] bg-gray-800 w-full justify-center'>
-      <img src={imageSrc} className={`scale-200 m-5`} alt="Preview" />
-      <div className='p-10 bg-gray-600 self-center'>
+    <div id="preview" className='flex flex-row h-[500px] w-full justify-center'>
+      <div className='flex self-center'>
         <img src={imageSrc} className='object-none' alt="Preview" />
       </div>
     </div>
@@ -24,7 +23,7 @@ function ScaleDropdownSelector({ setScale }: { setScale: (n: number) => void }) 
   return (
     <details className="dropdown" ref={detailsRef}>
       <summary className="btn m-1">Counter scale</summary>
-      <ul className="menu dropdown-content bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+      <ul className="menu dropdown-content bg-base-100 rounded-box z-1 w-52 shadow-sm">
         <li><a onClick={() => handleClick(200)}>200%</a></li>
         <li><a onClick={() => handleClick(100)}>100%</a></li>
         <li><a onClick={() => handleClick(50)}>50%</a></li>
