@@ -1,19 +1,20 @@
-@layer base, utils, components;
-
-@import "@webtui/css";
-@import "@webtui/css/base.css";
+/* @layer base, utils, components; */
+/* @import "@webtui/css"; */
+/* @import "@webtui/css/base.css"; */
 
 /* Utils */
-@import "@webtui/css/utils/box.css";
+/* @import "@webtui/css/utils/box.css"; */
 
 /* Components */
-@import "@webtui/css/components/button.css";
-@import "@webtui/css/components/typography.css";
-@import "@webtui/css/components/input.css";
+/* @import "@webtui/css/components/button.css"; */
+/* @import "@webtui/css/components/typography.css"; */
+/* @import "@webtui/css/components/input.css"; */
 
-@import '@webtui/theme-catppuccin';
+/* @import '@webtui/theme-catppuccin'; */
 /* @import '@webtui/theme-vitesse'; */
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@import url('./assets/styles/terminal.css');
+@import url('./assets/styles/fira_code.css');
+

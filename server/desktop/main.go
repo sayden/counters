@@ -13,6 +13,9 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/adaptor"
+	"github.com/gomarkdown/markdown"
+	"github.com/gomarkdown/markdown/html"
+	"github.com/gomarkdown/markdown/parser"
 	"github.com/spf13/afero"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -59,6 +62,7 @@ func setupServer(vfs *VirtualFileSystem) http.Handler {
 	// Setup routes
 	server.Post("/temp.png", hh.New)
 	server.Get("/api/images/:filename", hh.Get)
+	server.Get("/api/md.html", hh.MarkdownHelp)
 
 	adaptor.HTTPHandler(hh)
 	handler := adaptor.FiberApp(server)
@@ -70,6 +74,28 @@ func setupServer(vfs *VirtualFileSystem) http.Handler {
 type httpHandler struct {
 	*VirtualFileSystem
 	fiberHandler http.HandlerFunc
+}
+
+func (h *httpHandler) MarkdownHelp(c *fiber.Ctx) error {
+	mdFile, err := os.ReadFile("./README.md")
+	if err != nil {
+		log.Error("Could not open markdown file", "error", err)
+		return err
+	}
+
+	extensions := parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock
+	p := parser.NewWithExtensions(extensions)
+	doc := p.Parse(mdFile)
+
+	// create HTML renderer with extensions
+	htmlFlags := html.CommonFlags | html.HrefTargetBlank
+	opts := html.RendererOptions{Flags: htmlFlags}
+	renderer := html.NewRenderer(opts)
+
+	walkFile(&doc)
+
+	c.Response().Header.Set("Content-Type", "text/html")
+	return c.Send(markdown.Render(doc, renderer))
 }
 
 func (h *httpHandler) New(c *fiber.Ctx) error {

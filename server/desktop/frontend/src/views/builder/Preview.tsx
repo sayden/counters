@@ -2,11 +2,7 @@ import { useRef, useCallback } from 'react';
 
 export default function Preview({ imageSrc }: { imageSrc: string }) {
   return (
-    <div id="preview" className='flex flex-row h-[500px] w-full justify-center'>
-      <div className='flex self-center'>
-        <img src={imageSrc} className='object-none' alt="Preview" />
-      </div>
-    </div>
+    <img src={imageSrc} alt="Preview" />
   );
 }
 

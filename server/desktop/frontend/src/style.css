@@ -2,16 +2,19 @@
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
-    font-family: "VT323";
+    /* font-family: "VT323"; */
+    font-family: "Fira Code";
     /* font-family: "Bitcount_Prop_Single"; */
 }
 
 @font-face {
-    font-family: "VT323";
+    /* font-family: "VT323"; */
+    font-family: "Fira Code Regular";
+    font-weight: 400;
     /* font-family: "Bitcount_Prop_Single"; */
-    font-style: regular;
     src: local(""),
-        url("assets/fonts/vt323.ttf") format("truetype");
+        url("assets/fonts/FiraCode-Regular.woff2") format("woff2");
+    /* url("assets/fonts/vt323.ttf") format("truetype"); */
     /* url("assets/fonts/bitcount.ttf") format("truetype"); */
 }
 
@@ -22,4 +25,17 @@ html {
 body {
     min-height: 100%;
     overflow: scroll;
+}
+
+img {
+    border: none !important;
+    margin: 0 !important;
+}
+
+p {
+    color: lightgray;
+}
+
+li {
+    color: gray;
 }

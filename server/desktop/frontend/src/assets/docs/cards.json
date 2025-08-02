@@ -1,0 +1,27 @@
+{
+    "rows":1,
+    "columns":3,
+    "width":300,
+    "height":500,
+    "mode":"tiles",
+    "output_path":"docs/cards_%02d.png",
+    "border_color":"black",
+    "border_width":1,
+    "cards":[
+        { "areas": [{"texts": [{"string": "area_1"}]}]},
+        {
+            "areas": [
+                {"texts": [{"string": "area_1"}]},
+                {"texts": [{"string": "area_2"}]}
+            ]},
+        {
+            "areas": [
+                {
+                    "background_color": "#4682B4",
+                    "texts": [{"string": "area_1", "position": 13}]
+                },
+                {"height": 300, "texts": [{"string": "area_2"}]},
+                {"texts": [{"string": "area_3"}]}
+            ]}
+    ]
+}

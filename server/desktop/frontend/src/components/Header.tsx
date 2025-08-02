@@ -1,23 +1,19 @@
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-
-
-export default function Header() {
+export default function Header({ className }: { className: string }) {
 	return (
-		<div box-="square" className="flex justify-between p-[3ch]" >
+		<section className={className} >
 
 			{/* Navigation */}
-			<div
-				className='flex justify-between gap-[2ch]'>
-				<p><a href='/'>Home</a></p>
-				<p><a href='/builder.html'>Builder</a></p>
+			<div className='flex justify-between gap-x-[2ch]'>
+				<a href='/'>Home</a>
+				<a href='/builder.html'>Builder</a>
+				<a href='/help.html'>Help</a>
+				<a href='/markdown.html'>Markdown</a>
 			</div>
 
-			<div className='flex justify-end'>
-				<h1>Counters Visualizer</h1>
-			</div>
+			<h1 className="!my-0">Counters Visualizer</h1>
 
-		</div >
+		</section >
 	)
 }
 

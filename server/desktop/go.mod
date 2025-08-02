@@ -5,6 +5,7 @@ go 1.24.0
 require (
 	github.com/charmbracelet/log v0.4.0
 	github.com/fsnotify/fsnotify v1.9.0
+	github.com/gomarkdown/markdown v0.0.0-20250731182530-5d03d1963446
 	github.com/sayden/counters v0.0.0
 	github.com/spf13/afero v1.14.0
 	github.com/wailsapp/wails/v2 v2.10.2

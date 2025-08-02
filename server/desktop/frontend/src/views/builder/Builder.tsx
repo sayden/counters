@@ -28,20 +28,22 @@ export default function Builder() {
   }, [code])
 
   return (
-    <div>
+    <main className="flex flex-col items-center h-screen w-screen">
+      <div className='w-[80%] flex flex-col grow'>
 
-      <Header />
+        <Header className='flex justify-between items-baseline border-b-1 border-double !px-[1ch] !py-[1lh]' />
 
-      <div className="flex flex-row h-full">
-        <div className="min-w-1/2 h-full overflow-auto overscroll-contain">
-          <CodeEditor code={code} setCode={setCode} />
-        </div>
+        <section className="flex flex-row !mt-[1lh]">
+          <div className="min-w-[80%]">
+            <CodeEditor code={code} setCode={setCode} />
+          </div>
 
-        <div className="flex flex-col w-1/2 h-1/2 items-center">
-          <Preview imageSrc={imageSrc} />
-        </div>
+          <div className="flex flex-col w-1/2 justify-center items-center">
+            <Preview imageSrc={imageSrc} />
+          </div>
+        </section>
+
       </div>
-
-    </div>
+    </main>
   )
 }

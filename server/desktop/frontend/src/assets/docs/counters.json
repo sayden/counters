@@ -1,0 +1,154 @@
+{
+  "rows": 7,
+  "columns": 7,
+  "width": 300,
+  "height": 300,
+  "font_height": 70,
+  "margins": 10,
+  "font_color": "white",
+  "background_color": "#4682B4",
+  "mode": "template",
+  "output_folder": "docs/counters",
+  "draw_guides": false,
+  "stroke_width": 5,
+  "stroke_color": "black",
+  "image_scaling": "fitWidth",
+  "counters": [
+    { "texts": [{ "string": "font_color", "font_color": "red" }] },
+    { "texts": [{ "string": "font_color", "font_color": "#0F0" }] },
+    { "texts": [{ "string": "shadow", "shadow": 0 }] },
+    { "texts": [{ "string": "shadow", "shadow": 3 }] },
+    { "texts": [{ "string": "shadow", "shadow": 10 }] },
+    { "texts": [{ "string": "rotation", "rotation": 45 }] },
+    { "texts": [{ "string": "x_shift", "x_shift": 0, "font_height": 60 }] },
+    { "texts": [{ "string": "x_shift", "x_shift": 70, "font_height": 60 }] },
+    { "texts": [{ "string": "y_shift", "y_shift": 0, "font_height": 60 }] },
+    { "texts": [{ "string": "y_shift", "y_shift": -70, "font_height": 60 }] },
+    {
+      "texts": [
+        { "string": "stroke_width", "stroke_width": -1, "font_height": 50 }
+      ]
+    },
+    {
+      "texts": [
+        { "string": "stroke_width", "stroke_width": 5, "font_height": 50 }
+      ]
+    },
+    {
+      "texts": [
+        { "string": "stroke_width", "stroke_width": 15, "font_height": 50 }
+      ]
+    },
+    {
+      "texts": [
+        { "string": "stroke_color", "stroke_color": "red", "font_height": 50 }
+      ]
+    },
+    {
+      "texts": [
+        { "string": "stroke_color", "stroke_color": "blue", "font_height": 50 }
+      ]
+    },
+    {
+      "texts": [
+        {
+          "string": "avoid _ clipping",
+          "avoid_clipping": true,
+          "font_height": 70
+        }
+      ]
+    },
+    {
+      "texts": [
+        { "string": "0", "font_height": 30, "stroke_width": 3 },
+        { "position": 1, "string": "1", "font_height": 30, "stroke_width": 3 },
+        { "position": 2, "string": "2", "font_height": 30, "stroke_width": 3 },
+        { "position": 3, "string": "3", "font_height": 30, "stroke_width": 3 },
+        { "position": 4, "string": "4", "font_height": 30, "stroke_width": 3 },
+        { "position": 5, "string": "5", "font_height": 30, "stroke_width": 3 },
+        { "position": 6, "string": "6", "font_height": 30, "stroke_width": 3 },
+        { "position": 7, "string": "7", "font_height": 30, "stroke_width": 3 },
+        { "position": 8, "string": "8", "font_height": 30, "stroke_width": 3 },
+        { "position": 9, "string": "9", "font_height": 30, "stroke_width": 3 },
+        {
+          "position": 10,
+          "string": "10",
+          "font_height": 30,
+          "stroke_width": 3
+        },
+        {
+          "position": 11,
+          "string": "11",
+          "font_height": 30,
+          "stroke_width": 3
+        },
+        {
+          "position": 12,
+          "string": "12",
+          "font_height": 30,
+          "stroke_width": 3
+        },
+        {
+          "position": 13,
+          "string": "13",
+          "font_height": 30,
+          "stroke_width": 3
+        },
+        {
+          "position": 14,
+          "string": "14",
+          "font_height": 30,
+          "stroke_width": 3
+        },
+        {
+          "position": 15,
+          "string": "15",
+          "font_height": 30,
+          "stroke_width": 3
+        },
+        { "position": 16, "string": "16", "font_height": 30, "stroke_width": 3 }
+      ]
+    },
+    {
+      "texts": [
+        {
+          "position": 13,
+          "string": "position",
+          "font_height": 40,
+          "stroke_width": 3
+        }
+      ]
+    },
+    {
+      "texts": [
+        {
+          "position": 3,
+          "string": "image",
+          "font_height": 40,
+          "stroke_width": 3
+        }
+      ],
+      "images": [{ "path": "assets/binoculars.png", "scale": 0.5 }]
+    },
+    {
+      "background_color": "white",
+      "texts": [
+        {
+          "string": "background_color",
+          "font_height": 40,
+          "avoid_clipping": true
+        }
+      ]
+    },
+    {
+      "background_color": "#4682B4",
+      "texts": [
+        {
+          "string": "background_color",
+          "font_height": 40,
+          "avoid_clipping": true
+        }
+      ]
+    }
+  ]
+}

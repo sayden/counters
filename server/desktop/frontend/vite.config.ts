@@ -15,6 +15,7 @@ export default defineConfig({
       input: {
         index: resolve(__dirname, 'index.html'),
         builder: resolve(__dirname, 'builder.html'),
+        help: resolve(__dirname, 'help.html'),
       }
     }
   }

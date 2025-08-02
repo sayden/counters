@@ -16,19 +16,22 @@ export default function Header({
 	showFolderDialog: () => void
 }) {
 	return (
-		<nav>
+		<nav className='!pb-[1ch]'>
 
-			<HeaderComponent />
+			<HeaderComponent
+				className="flex justify-between items-center border-b-1 border-double !px-[1ch] !py-[1lh]" />
 
-			<div box-="square" className="flex p-[3ch]">
+			<section className="flex justify-stretch gap-[2ch] border-b-1 border-dotted !px-[1ch] !pb-[1lh] !mt-[1lh]">
 				<FileSelector
+					className="flex items-center justify-between gap-[1ch] max-w-1/2 text-wrap"
 					path={path}
 					showFolderDialog={showFolderDialog} />
 
 				<InputFilter
+					className="flex grow justify-between items-center gap-[1ch]"
 					filter={filter}
 					setFilter={setFilter} />
-			</div>
+			</section>
 
 		</nav>
 	)

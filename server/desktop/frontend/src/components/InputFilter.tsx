@@ -1,19 +1,19 @@
-export default function InputFilter({ filter, setFilter }: {
+export default function InputFilter({ filter, setFilter, className }: {
 	filter: string,
 	setFilter: (filter: string) => void,
+	className?: string;
 }) {
 	return (
-		<div className="flex grow-1 w-auto justify-between items-center">
+		<div className={className}>
 			<input
 				type="text"
 				placeholder="Counter name"
-				className="ml-[1ch] grow-1"
 				value={filter}
+				className="grow"
 				onChange={(e) => setFilter(e.target.value)} />
 
 			<button
-				variant-="blue"
-				className="min-w-[15ch] ml-[1ch]"
+				className="min-w-[17ch] !border-1"
 				onClick={() => setFilter("")}>
 				Reset filter
 			</button>

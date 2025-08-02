@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback, useMemo, ReactNode, ReactHTMLElement } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 // Wails
-import { EventsOn, EventsOnce } from '../../../wailsjs/runtime';
+import { EventsOnce } from '../../../wailsjs/runtime';
 import { server } from "../../../wailsjs/go/models";
 import { GetCounters, SelectFile } from "../../../wailsjs/go/main/App";
 
@@ -11,18 +11,18 @@ import Header from './Header';
 
 // React component
 export default function App() {
-    const [path, setPath] = useState<string>(" No file selected ");
+    const [path, setPath] = useState<string>("No file selected");
     const [counters, setCounters] = useState<server.CounterImage[]>([]);
     const [filter, setFilter] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
-    const [progress, setProgress] = useState<number>(0);
+    const [curProgress, setCurProgress] = useState<number>(0);
     const [totalCounters, setTotalCounters] = useState<number>(0);
 
     const showFolderDialog = useCallback(() => {
         setPath("");
         setLoading(true);
         setCounters([]);
-        setProgress(0);
+        setCurProgress(0);
         SelectFile().
             then(setPath);
     }, []);
@@ -43,19 +43,19 @@ export default function App() {
 
     const content = () => {
         if (path === " No file selected ") {
-            return (<h1>Select a file to visualize</h1>)
+            return (<h2>Select a file to visualize</h2>)
         }
 
         if (loading) {
             const fileMsg = path === "" ? "Select file..." : `Loading file "${path}"`;
             return (
-                <h1>
-                    <p>{fileMsg}</p>
+                <div className='w-full flex flex-col items-center justify-center px-[1ch]'>
+                    <p className='text-inherit'>{fileMsg}</p>
                     <progress
-                        className="progress"
-                        value={progress}
+                        className="w-full progress"
+                        value={curProgress}
                         max="100" />
-                </h1>
+                </div>
             )
         }
 
@@ -85,23 +85,27 @@ export default function App() {
             return;
         }
 
-        if (progress === 0) {
+        if (curProgress === 0) {
             setTotalCounters(countersLeft);
         }
 
         const percent = countersLeft / totalCounters;
 
-        setProgress(100 - (percent * 100));
+        setCurProgress(100 - (percent * 100));
     });
 
     return (
-        <div>
-            <Header
-                filter={filter}
-                setFilter={setFilter}
-                path={path}
-                showFolderDialog={showFolderDialog} />
-            {content()}
+        <div className="flex flex-col items-center">
+            <div className='flex flex-col w-[80%] pt-[1ch] gap-[1ch]'>
+                <Header
+                    filter={filter}
+                    setFilter={setFilter}
+                    path={path}
+                    showFolderDialog={showFolderDialog} />
+                <div className='px-[2ch]'>
+                    {content()}
+                </div>
+            </div>
         </div>
     )
 }

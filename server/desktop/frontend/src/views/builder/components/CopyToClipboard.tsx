@@ -1,6 +1,6 @@
 import toast, { Toaster } from 'react-hot-toast';
 
-export default function CopyToClipboardButton({ code }: { code: string }) {
+export default function ButtonCopyToClipboard({ code }: { code: string }) {
 	const copyToClipboard = () => {
 		navigator.clipboard.writeText(code)
 			.then(() => {
@@ -13,7 +13,7 @@ export default function CopyToClipboardButton({ code }: { code: string }) {
 	return (
 		<div>
 			<button
-				className="min-w-[30ch]"
+				className="min-w-[30ch] !border-1"
 				onClick={copyToClipboard}>
 				Copy to Clipboard
 			</button>

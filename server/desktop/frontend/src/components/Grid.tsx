@@ -7,13 +7,13 @@ export default function Grid({ counters }: {
 }) {
 
 	return (
-		<div className="gap-[1ch] grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))]">
+		<section className="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] gap-[1ch]">
 			{
 				counters.map((counter: CounterData) =>
 					<Counter key={counter.id} counter={counter} />
 				)
 			}
-		</div>
+		</section>
 	);
 }
 
