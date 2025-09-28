@@ -17,9 +17,12 @@ type CounterTemplate struct {
 	Rows    int `json:"rows,omitempty" default:"2" jsonschema_description:"Number of rows, required when creating tiled based sheets for printing or TTS"`
 	Columns int `json:"columns,omitempty" default:"2" jsonschema_description:"Number of columns, required when creating tiled based sheets for printing or TTS"`
 
-	DrawGuides   bool     `json:"draw_guides,omitempty"`
-	Mode         string   `json:"mode"`
-	OutputFolder string   `json:"output_folder" default:"output"`
+	DrawGuides bool `json:"draw_guides,omitempty"`
+
+	// TODO: This seems to be mostly ignored. It should not, because it's necessary for printing in paper
+	Mode string `json:"mode,omitempty"`
+
+	OutputFolder string   `json:"output_folder,omitempty" default:"out"`
 	Scaling      *float64 `json:"scaling,omitempty"`
 
 	// TOOD: Move Vassal to Metadata

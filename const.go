@@ -1,7 +1,7 @@
 package counters
 
 const (
-	DEFAULT_FONT_HEIGHT = 15.0
+	DEFAULT_FONT_HEIGHT = 20.0
 
 	DEFAULT_MARGINS_DISTANCE = 10
 

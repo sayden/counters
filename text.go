@@ -61,7 +61,7 @@ func (t *Text) Draw(dc *gg.Context, pos int, settings *Settings) error {
 	defer dc.Pop()
 
 	// Font and font color
-	err := dc.LoadFontFace(settings.FontPath, settings.FontHeight)
+	err := t.LoadFontOrDefault(dc)
 	if err != nil {
 		return fmt.Errorf("could not load font face '%s' with heigth '%f': %w", settings.FontPath, settings.FontHeight, err)
 	}
@@ -83,7 +83,7 @@ func (t *Text) Draw(dc *gg.Context, pos int, settings *Settings) error {
 	// CropToContent function
 	temp := gg.NewContext(dc.Width(), dc.Height())
 
-	if err = temp.LoadFontFace(settings.FontPath, settings.FontHeight); err != nil {
+	if err = settings.LoadFontOrDefault(temp); err != nil {
 		return err
 	}
 	temp.SetColor(settings.FontColor)

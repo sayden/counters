@@ -5,6 +5,7 @@ import (
 	"image/color"
 
 	"dario.cat/mergo"
+	"github.com/adrg/sysfont"
 	"github.com/disintegration/imaging"
 	"github.com/fogleman/gg"
 	"github.com/pkg/errors"
@@ -126,6 +127,20 @@ func (s *Settings) DrawBackgroundImage(dc *gg.Context) error {
 	dc.DrawImageAnchored(img, dc.Width()/2, dc.Height()/2, 0.5, 0.5)
 
 	return nil
+}
+
+func (s *Settings) LoadFontOrDefault(dc *gg.Context) error {
+	if s.FontPath == "" {
+		// Load a default font
+		finder := sysfont.NewFinder(nil)
+		font := finder.Match("Arial")
+		if s.FontHeight == 0 {
+			s.FontHeight = DEFAULT_FONT_HEIGHT
+		}
+		return dc.LoadFontFace(font.Filename, s.FontHeight)
+	}
+
+	return dc.LoadFontFace(s.FontPath, s.FontHeight)
 }
 
 func Merge(d *Settings, s2 Settings, opt ...func(*mergo.Config)) error {

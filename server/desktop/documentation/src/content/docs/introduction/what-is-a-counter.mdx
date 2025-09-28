@@ -1,0 +1,55 @@
+---
+title: What is a Counter?
+description: Start here!
+sidebar:
+  order: 2
+---
+import { Image } from 'astro:assets';
+import { Aside } from '@astrojs/starlight/components';
+
+import Reveal from '../../../components/Reveal';
+import Button from '../../../components/Button';
+
+import whatIsACounter from '../../../assets/what-is-a-counter.png';
+import positionAll from '../../../assets/position_all.png';
+
+Historically, a "counter" in the wargame context is just a name that refers to a piece you interact
+with in a boardgame. Inside this project, it's more like a template for that piece and how it is
+defined.
+
+<Image class="float-right pl-[1ch]" src={whatIsACounter} alt="counter" />
+
+Every of these counters, might contain images or texts. For example, the counter at the right,
+contains 2 texts (`HELLO` and `COUNTER`) and 1 image (the black and white cirle on the top).
+
+## Positions
+
+<Image class="float-right pl-[1ch] w-1/5" src={positionAll} alt="counter" />
+
+Each text or image will be positioned at the center by default. To define a different place, 
+we provide with a set of 17 fixed positions.
+
+So, you will define a text, like `COUNTER` and then say that you want it on the bottom-center of 
+the counter, which is position 11.
+
+<Aside type="tip" title="Quiz" icon='approve-check'>
+  Guess where is the position of the image in the counter above?
+
+  <Reveal client:load>
+> Answer: Position 3.
+  </Reveal>
+
+  What about the text `HELLO`?
+
+  <Reveal client:load>
+> Answer: Position 0, the default position.
+  </Reveal>
+</Aside>
+
+## Attributes
+
+Finally, each text and image can contain more than 25 different properties. Some of them are common,
+like `position` and some of them are specific like `font_color` for texts or `scaling` for images.
+
+Using those attributes, you can change the shape of texts or the color. And you can also rotate
+or scale images.

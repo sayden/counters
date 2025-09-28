@@ -14,7 +14,6 @@ import (
 	"github.com/fogleman/gg"
 	"github.com/pkg/errors"
 	"github.com/robertkrimen/otto"
-	"github.com/thehivecorporation/log"
 )
 
 func init() {
@@ -54,10 +53,11 @@ type Counters []Counter
 
 // TODO This Metadata contains data from all projects
 type Metadata struct {
+	CardImage *Image `json:"card_image,omitempty"`
+	Cost      int    `json:"cost,omitempty"`
+
 	// PublicIcon in a FOW counter is the visible icon for the enemy. Imagine an icon for the back
 	// of a block in a Columbia game
-	CardImage          *Image         `json:"card_image,omitempty"`
-	Cost               int            `json:"cost,omitempty"`
 	PublicIcon         *Image         `json:"public_icon,omitempty"`
 	Side               string         `json:"side,omitempty"`
 	SkipCardGeneration bool           `json:"skip_card_generation,omitempty"`
@@ -239,8 +239,7 @@ func (a *Counter) drawBorders(canvas *gg.Context) {
 
 func (c *Counter) canvas() (*gg.Context, error) {
 	dc := gg.NewContext(c.Width, c.Height)
-	if err := dc.LoadFontFace(c.FontPath, c.FontHeight); err != nil {
-		log.WithFields(log.Fields{"font": "'" + c.FontPath + "'", "height": c.FontHeight}).Error(err)
+	if err := c.LoadFontOrDefault(dc); err != nil {
 		return nil, err
 	}
 

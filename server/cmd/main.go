@@ -11,13 +11,13 @@ import (
 
 	"github.com/charmbracelet/fang"
 	"github.com/charmbracelet/log"
-	"github.com/gin-gonic/gin"
-	"github.com/sayden/counters/server"
-	"github.com/spf13/afero"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/spf13/cobra"
-)
 
-var startingFolder, _ = os.Getwd()
+	"github.com/sayden/counters/server"
+	"github.com/sayden/counters/server/httphandlers"
+)
 
 func main() {
 	log.SetLevel(log.DebugLevel)
@@ -30,23 +30,25 @@ func main() {
 	}
 	cmd.Flags().StringVarP(&fileToWatch, "file", "f", "", "File/Folder to watch")
 
-	ctx := context.Background()
-	err := fang.Execute(ctx, cmd)
+	err := fang.Execute(context.Background(), cmd)
 	if err != nil {
 		os.Exit(1)
 	}
 
-	router := gin.Default()
+	// router := gin.Default()
+	router := fiber.New()
 
 	router.Static("/static", "cmd/static")
 
 	// API routes
-	api := NewApiHandler(
-		&server.VirtualFileSystem{Fs: afero.NewMemMapFs()},
+	api := httphandlers.NewApi(
+		context.Background(),
+		// &backend.VirtualFileSystem{Fs: afero.NewMemMapFs()},
+		&server.Base64ImagesFs{},
 		make(chan []byte))
-	router.POST("/api/code", api.POSTCode)
-	router.GET("/api/sse", api.SSE)
-	router.GET("/api/counters", api.GETCounters)
+	router.Post("/api/code", api.POSTCode)
+	router.Get("/api/sse", api.SSE)
+	router.Get("/api/counters", api.GETCounters)
 
 	// Watch file if provided
 	var fw *server.FileWatcher
@@ -56,7 +58,7 @@ func main() {
 		}
 		defer fw.Close()
 
-		if err = fw.Watch(ctx); err != nil {
+		if err = fw.Watch(context.Background()); err != nil {
 			log.Fatal(err)
 		}
 	}
@@ -75,12 +77,12 @@ func main() {
 	}(fw)
 
 	// Web routes
-	web := webHandler{}
-	router.GET("/state", web.GETGrid)
-	router.GET("/", web.GETIndex)
+	web := httphandlers.Web{}
+	router.Get("/state", web.GETGrid)
+	router.Get("/", web.GETIndex)
 
 	// Launch the server
-	server := &http.Server{Addr: ":8090", Handler: router}
+	server := &http.Server{Addr: ":8090", Handler: adaptor.FiberApp(router)}
 	log.Info("Server is running on http://localhost:8090")
 	log.Info("This server must be run in the same folder as the template to find its assets")
 

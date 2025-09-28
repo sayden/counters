@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 
 // Wails
-import { GetImage } from "../../../wailsjs/go/main/App";
+import { GetImage } from "../../../wailsjs/go/backend/App";
 
 // Components
 import Header from '../../components/Header';
@@ -23,7 +24,11 @@ export default function Builder() {
       // console.log("timeoutRef.current", timeoutRef.current);
       await GetImage(code)
         .then(blob =>
-          setImageSrc(`data:image/png;base64,${blob}`));
+          setImageSrc(`data:image/png;base64,${blob}`))
+        .catch(err => {
+          toast.error(err);
+          console.error(err);
+        });
     }, 500);
   }, [code])
 
@@ -43,6 +48,12 @@ export default function Builder() {
           </div>
         </section>
 
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            duration: 3000,
+          }}
+        />
       </div>
     </main>
   )

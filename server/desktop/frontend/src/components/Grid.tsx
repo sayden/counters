@@ -1,15 +1,15 @@
 import React from 'react';
 
-import Counter, { CounterData } from './Counter';
+import Counter, { CounterProps } from './Counter';
 
 export default function Grid({ counters }: {
-	counters: CounterData[]
+	counters: CounterProps[]
 }) {
 
 	return (
 		<section className="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] gap-[1ch]">
 			{
-				counters.map((counter: CounterData) =>
+				counters.map((counter: CounterProps) =>
 					<Counter key={counter.id} counter={counter} />
 				)
 			}

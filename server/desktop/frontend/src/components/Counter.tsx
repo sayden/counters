@@ -1,10 +1,10 @@
-export interface CounterData {
+export interface CounterProps {
 	id: string,
 	pretty_name: string
 	filename: string
 }
 
-export default function Counter({ counter }: { counter: CounterData }) {
+export default function Counter({ counter }: { counter: CounterProps }) {
 	return (
 		<figure
 			className="flex flex-col items-center justify-baseline !m-0">

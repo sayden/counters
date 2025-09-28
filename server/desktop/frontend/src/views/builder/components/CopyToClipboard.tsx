@@ -1,4 +1,4 @@
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 export default function ButtonCopyToClipboard({ code }: { code: string }) {
 	const copyToClipboard = () => {
@@ -17,7 +17,6 @@ export default function ButtonCopyToClipboard({ code }: { code: string }) {
 				onClick={copyToClipboard}>
 				Copy to Clipboard
 			</button>
-			{<Toaster position="bottom-right" />}
 		</div>
 	);
 }

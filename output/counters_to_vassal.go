@@ -49,7 +49,7 @@ func VassalModule(outputPath string, templatesFiles []string) error {
 	// create all the counters in their respective folders
 	for _, inputPath := range templatesFiles {
 		if err := counters.ValidateSchemaAtPath[counters.CounterTemplate](inputPath); err != nil {
-			return errors.Wrap(err, "schema validation failed during jsonToAsset")
+			return errors.Wrap(err, "schema validation failed")
 		}
 
 		counterTemplate, err := input.ReadCounterTemplate(inputPath)

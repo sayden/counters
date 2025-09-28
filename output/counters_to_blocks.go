@@ -91,7 +91,7 @@ func getBlockCanvasFromCounterCanvas(counterCanvas *gg.Context, cc *counters.Cou
 	canvasWidth := float64(counterCanvas.Width()) * canvasRatio
 	canvasHeigth := float64(counterCanvas.Height()) * canvasRatio
 	dc := gg.NewContext(int(canvasWidth), int(canvasHeigth))
-	if err := dc.LoadFontFace(cc.FontPath, cc.FontHeight); err != nil {
+	if err := cc.LoadFontOrDefault(dc); err != nil {
 		return nil, err
 	}
 

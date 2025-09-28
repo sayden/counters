@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 // Wails
 import { EventsOnce } from '../../../wailsjs/runtime';
 import { server } from "../../../wailsjs/go/models";
-import { GetCounters, SelectFile } from "../../../wailsjs/go/main/App";
+import { GetCounters, SelectFile } from "../../../wailsjs/go/backend//App";
 
 // Components
 import Grid from '../../components/Grid';

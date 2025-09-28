@@ -20,7 +20,8 @@ type CardsTemplate struct {
 	DrawGuides bool `json:"draw_guides,omitempty"`
 
 	// TODO is this field still used? Mode can be 'tiles' or 'template' to generate an A4 sheet
-	// like of cards or a single file per card.
+	// like of cards or a single file per card. I don't think it should be removed, because it's
+	// necessary for printing or TTS
 	Mode string `json:"mode,omitempty" default:"tiles"`
 
 	// TODO Rename this to OutputFolder or the one in counters to OutputPath and update JSON's
@@ -159,9 +160,8 @@ func (t *CardsTemplate) SheetCanvas() (*gg.Context, error) {
 // taken from `settings`
 func (t *CardsTemplate) Canvas(settings *Settings, width, height int) (*gg.Context, error) {
 	dc := gg.NewContext(width, height)
-	err := dc.LoadFontFace(settings.FontPath, settings.FontHeight)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not load font face")
+	if err := settings.LoadFontOrDefault(dc); err != nil {
+		return nil, err
 	}
 
 	if settings.BgColor != nil {

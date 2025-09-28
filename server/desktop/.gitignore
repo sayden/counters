@@ -3,3 +3,5 @@ node_modules
 frontend/dist
 build/darwin
 build/windows
+dist-documentation
+frontend/package.json.md5

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useCallback } from "react";
 
 import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
@@ -6,7 +6,7 @@ import { dracula } from '@uiw/codemirror-theme-dracula';
 import prettier from "prettier/standalone";
 import parserBabel from "prettier/plugins/babel";
 import estreePlugin from "prettier/plugins/estree";
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import ButtonCopyToClipboard from "./components/CopyToClipboard";
 
 interface Props {
@@ -16,7 +16,6 @@ interface Props {
 
 export default function CodeEditor({ code, setCode }: Props) {
   const handleFormat = useCallback(() => {
-    console.log("formatting...", code);
     prettier.format(code,
       {
         parser: "json",
@@ -38,6 +37,7 @@ export default function CodeEditor({ code, setCode }: Props) {
           Format
         </button>
       </div>
+
       <CodeMirror
         value={code}
         onChange={setCode}
@@ -45,7 +45,7 @@ export default function CodeEditor({ code, setCode }: Props) {
         theme={dracula}
         className='text-sm overflow-y-auto overscroll-contain'
       />
-      <Toaster position="bottom-right" />
+
     </section>
   );
 }

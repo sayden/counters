@@ -1,0 +1,207 @@
+---
+title: Quick start
+sidebar:
+  order: 4
+---
+import { Code } from '@astrojs/starlight/components';
+import { Image } from 'astro:assets';
+
+import whatIsACounter from '../../../assets/what-is-a-counter.png';
+
+<Image class="float-right pl-[1ch]" src={whatIsACounter} alt="counter" />
+
+Historically, a "counter" in the wargame context is just a name that refers to a piece you interact
+with in a boardgame. Inside this project, it's more like a template for that piece
+and how it is defined.
+
+<Code lang="json" mark={['texts', 'images']} code={`
+{
+  "texts": [
+    {
+      "string": "Hello",
+      "font_height": 25
+    },
+    {
+      "position": 11,
+      "string": "Counter",
+      "font_color": "white"
+    }
+  ],
+  "images": [
+    {
+      "position": 3,
+      "path": "myassets/supply.png",
+      "scale": 0.3
+    }
+  ]
+}
+`} />
+
+You can see, there's 2 root elements: `texts` and `images`.
+Texts are a list of text definitions which requires, at least, a mandatory `string` property.
+Images are a list of image definitions and each of them requires, at least, a mandatory `path` property.
+
+## Creating texts
+
+In the example above, the `texts` array contains 2 elements. The first text contains the text `Hello`,
+which you define using the `string` property. Then the size of the text is changed to `25` px using the optional `font_height` property.
+You can see the text `HELLO` in the center of the counter.
+
+import positionAll from '../../../assets/position_all.png';
+
+<Image class="float-right pl-[1ch]" src={positionAll} alt="counter" />
+
+The second text item, with the `string` `COUNTER` changes the `font_color` to white.
+But this text is in the bottom of the piece. This is define by the `position` property. And why the position is 11?
+Look at the image on the right. Each number is a position on the piece, being 0, the center; the default position (now you know
+why the text "HELLO" was positioned in the center without any `position` defined property).
+
+## Creating images
+
+The only image in the `images` array contains an arleady familiar `position` property on the 3rd
+position (at the top-center of the counter).
+
+## The settings
+
+Each text and image can contain more than 25 different properties. Some of them are common, like
+`position` and some of them are specific like `font_color` for texts or `scaling` for images.
+
+I'll make a list with all of them, but I'll write here only most commonly used:
+
+- `position`: The position of the text or image in the counter. It's a number from 0 to 16. The first position is the top-left corner. The second position is the top-middle. And so on.
+- `font_color`: (Text only) The color of the text. It can be a hexadecimal color or a string color. For example, `font_color: "#0F0"` or `font_color: "red"`.
+- `background_color`: The background color of the text. It can be a hexadecimal color or a string color. For example, `background_color: "#0F0"` or `background_color: "red"`.
+- `x_shift`, `y_shift`: Displacement of the object on the counter on the x or y axis, like `"x_shift": 70`
+- `alignment`: The alignment of the text. It can be `center`, `right` or `left`.
+- `image_scaling`: The scaling of the image. It can be `fitWidth`, `wrap` or `fit
+
+## The template
+
+Finally, every conuter belongs to a template overarching JSON object. This template defines global
+properties for all the counters, that can later be overridden by the counters themselves.
+
+For example, the template can define the default font size for all the counters, or the default
+background color for all the counters.
+
+<Code lang="json" mark={['"counters"']} code={`
+{
+    "working_directory": "/your/path",
+    "rows": 7,
+    "columns": 7,
+    "width": 82,
+    "height": 82,
+    "margins": 2,
+    "font_height": 30,
+    "font_color": "black",
+    "mode": "template",
+    "output_folder": "generated/counters/test",
+    "font_path": "assets/font-bebas.ttf",
+    "counters": [
+    ...
+    ]
+}`} />
+
+The `counters` property is where you'll write every counter definition. So, in the end, how does
+it look like?
+
+<Code lang="json" code={`
+{
+    "working_directory": "/your/path",
+    "rows": 7,
+    "columns": 7,
+    "width": 82,
+    "margins": 2,
+    "height": 82,
+    "font_height": 25,
+    "font_color": "black",
+    "mode": "template",
+    "output_folder": "generated/counters/test",
+    "font_path": "assets/font-bebas.ttf",
+    "counters": [
+        {
+          "texts": [
+            {
+              "string": "Hello",
+              "font_height": 20
+            },
+            {
+              "position": 11,
+              "string": "Counter",
+              "font_color": "blue"
+            }
+          ],
+          "images": [
+            {
+              "position": 3,
+              "path": "assets/supply.png",
+              "scale": 0.12
+            }
+          ]
+        }
+    ]
+}
+`} />
+
+import generatedCounter from '../../../assets/basic-generated-counter.png';
+
+<Image src={generatedCounter} alt="counter" />
+
+## Prototypes
+
+The most advanced feature of this project is the prototypes. A prototype is a template that can be
+used to create multiple counters that share some format. `prototypes` is a map (not an array like
+`counters` array) that contains common `counter` JSON objects with the the special properties
+`text_prototypes` and `image_prototypes`.
+
+<Code lang="json" mark={['"prototypes"', "my_prototype", "text_prototypes", "image_prototypes", "path_list", "string_list"]} code={`
+{
+  "working_directory": "/mypath",
+  "rows": 7,
+  "columns": 7,
+  "width": 82,
+  "height": 82,
+  "font_height": 20,
+  "margins": 5,
+  "font_color": "black",
+  "background_color": "#b08619",
+  "mode": "template",
+  "output_folder": "generated/counters/test",
+  "draw_guides": false,
+  "stroke_color": "black",
+  "image_scaling": "fitWidth",
+  "position_number_for_filename": 3,
+  "font_path": "assets/font-bebas.ttf",
+  "prototypes": {
+    "my_prototype": {
+      "texts": [{ "position": 11, "string": "HQ" }],
+      "text_prototypes": [
+        {
+          "position": 3,
+          "string_list": ["First", "Second", "Third"]
+        }
+      ],
+      "image_prototypes": [
+        {
+          "scale": 0.3,
+          "path_list": [
+            "assets/supply.png",
+            "assets/supply.png",
+            "assets/supply.png"
+          ]
+        }
+      ]
+    }
+  }
+}
+`} />
+
+import proto1 from '../../../assets/intro-proto-1.png';
+import proto2 from '../../../assets/intro-proto-2.png';
+import proto3 from '../../../assets/intro-proto-3.png';
+
+<div class="flex w-full justify-around">
+  <Image class="object-contain" src={proto1} alt="counter" />
+  <Image class="object-contain" src={proto2} alt="counter" />
+  <Image class="object-contain" src={proto3} alt="counter" />
+</div>
+
